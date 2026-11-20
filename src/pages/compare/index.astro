@@ -1,0 +1,324 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/common/Breadcrumb.astro';
+import DisclosureBanner from '@/components/common/DisclosureBanner.astro';
+import { ALL_BRANDS, DATA_STATUS_META, getBrandAffiliate } from '@/data/brands';
+
+const defaultSlugs = ['guangsuyun', 'muguang', 'feimao'];
+
+const compactBrandData = ALL_BRANDS.map((b) => {
+  const aff = getBrandAffiliate(b.slug);
+  const monthlyPlans = b.plans.filter((p) => p.billingCycle === '月付');
+  const lowestMonthly = monthlyPlans.length > 0 ? monthlyPlans[0] : null;
+  const unexpiring = b.plans.find((p) => p.billingCycle === '一次性付费') ?? null;
+
+  return {
+    slug: b.slug,
+    name: b.name,
+    foundedYear: b.foundedYear,
+    isPromotedPartner: b.isPromotedPartner,
+    dataStatusLabel: DATA_STATUS_META[b.dataStatus].label,
+    lineType: b.lineType,
+    protocols: b.protocols.join(' / '),
+    clientMode:
+      b.clientMode === 'proprietary_only'
+        ? '仅专属客户端（无订阅）'
+        : b.clientMode === 'proprietary_and_third_party'
+          ? '自研 + 第三方订阅双支持'
+          : b.clientMode === 'third_party'
+            ? '支持第三方通用订阅'
+            : '待核实',
+    deviceLimit: b.deviceLimit,
+    startingPriceLabel: b.startingPriceLabel,
+    lowestMonthlyText: lowestMonthly
+      ? `¥${lowestMonthly.priceCny}/月（${lowestMonthly.trafficDisplay}）`
+      : '未单列月付档（请核实官网）',
+    unexpiringText: unexpiring
+      ? `¥${unexpiring.priceCny}（${unexpiring.trafficDisplay}）`
+      : '无 / 未记录',
+    nodeCountSummary: b.nodeCoverage.slice(0, 5).join('、'),
+    speedSummary: b.speedReport.hasData
+      ? `${b.speedReport.testDate} · ${b.speedReport.sourceLabel}`
+      : '暂无可用实测数据',
+    screenshotUrl: b.speedReport.screenshots?.[0]?.src ?? '',
+    aiNote: b.unlockMatrix.find((u) => u.service === 'ChatGPT')?.detail ?? '待核实',
+    couponCode: aff?.couponCode ?? '无 / 待核实',
+    registerUrl: aff?.registerUrl ?? '',
+    urlWarning: aff?.urlFormatWarning ?? '',
+    limitations: b.limitations[0] ?? '请以官网最新说明为准',
+  };
+});
+
+const defaultBrands = defaultSlugs
+  .map((s) => compactBrandData.find((b) => b.slug === s)!)
+  .filter(Boolean);
+---
+
+<BaseLayout
+  title="多品牌在线对比器（支持 31 家机场参数与实测并排对照）"
+  description="自由勾选 2–3 家机场品牌并排对比：运营年份、IEPL/IPLC 线路、协议、自研 vs Clash 订阅兼容、月付/不限时门槛、实测截图状态与优惠码。"
+>
+  <section class="border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
+    <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <Breadcrumb items={[{ label: '品牌数据库', href: '/brands/' }, { label: '在线参数对比器' }]} />
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <span class="inline-block rounded-full bg-[var(--brand-blue)] px-3 py-1 text-xs font-semibold text-white">
+            31 家品牌交互式对比工具
+          </span>
+          <h1 class="mt-3 text-3xl sm:text-4xl font-extrabold text-[var(--brand-navy)]">
+            机场品牌并排对比器
+          </h1>
+          <p class="mt-2 max-w-3xl text-sm sm:text-base text-[var(--text-secondary)]">
+            从下方下拉框任意选择 2 至 3 家品牌，即可实时并排核对线路架构、月付真实门槛、不限时流量包、客户端模式与实测截图证据。
+          </p>
+        </div>
+        <a
+          href="/brands/"
+          class="inline-flex shrink-0 items-center rounded-xl border border-[var(--border-strong)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--brand-blue)]"
+        >
+          返回 31 家品牌检索库 →
+        </a>
+      </div>
+
+      <div class="mt-5">
+        <DisclosureBanner compact />
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Brand Selectors -->
+    <div class="mb-6 grid gap-4 rounded-2xl border border-[var(--border-color)] bg-white p-5 shadow-xs md:grid-cols-3">
+      <div>
+        <label for="compare-slot-1" class="mb-1.5 block text-xs font-bold text-[var(--brand-blue)]">
+          对比品牌 A
+        </label>
+        <select id="compare-slot-1" class="compare-select w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-2.5 text-sm font-semibold">
+          {compactBrandData.map((b) => (
+            <option value={b.slug} selected={b.slug === defaultSlugs[0]}>
+              {b.name}（{b.lineType} · {b.dataStatusLabel}）
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label for="compare-slot-2" class="mb-1.5 block text-xs font-bold text-[var(--brand-blue)]">
+          对比品牌 B
+        </label>
+        <select id="compare-slot-2" class="compare-select w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-2.5 text-sm font-semibold">
+          {compactBrandData.map((b) => (
+            <option value={b.slug} selected={b.slug === defaultSlugs[1]}>
+              {b.name}（{b.lineType} · {b.dataStatusLabel}）
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label for="compare-slot-3" class="mb-1.5 block text-xs font-bold text-[var(--text-secondary)]">
+          对比品牌 C（可选）
+        </label>
+        <select id="compare-slot-3" class="compare-select w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-2.5 text-sm font-semibold">
+          <option value="">— 不对比第三家 —</option>
+          {compactBrandData.map((b) => (
+            <option value={b.slug} selected={b.slug === defaultSlugs[2]}>
+              {b.name}（{b.lineType} · {b.dataStatusLabel}）
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+
+    <!-- Quick Preset Pills -->
+    <div class="mb-6 flex flex-wrap items-center gap-2 text-xs">
+      <span class="font-semibold text-[var(--text-secondary)]">常见组合快捷填入：</span>
+      <button type="button" data-preset="guangsuyun,muguang,feimao" class="preset-btn rounded-full border border-[var(--border-color)] bg-white px-3 py-1.5 font-medium hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)] cursor-pointer">
+        光速云 vs 暮光 vs 飞猫云
+      </button>
+      <button type="button" data-preset="jilian,guangnian,yifan" class="preset-btn rounded-full border border-[var(--border-color)] bg-white px-3 py-1.5 font-medium hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)] cursor-pointer">
+        18–20元月付：极连云 vs 光年梯 vs 一翻云
+      </button>
+      <button type="button" data-preset="sujie,kexin,sogo" class="preset-btn rounded-full border border-[var(--border-color)] bg-white px-3 py-1.5 font-medium hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)] cursor-pointer">
+        25元档：速界 vs 可信云 vs SOGO云
+      </button>
+      <button type="button" data-preset="guangsuyun,xingdaomeng,weifeng" class="preset-btn rounded-full border border-[var(--border-color)] bg-white px-3 py-1.5 font-medium hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)] cursor-pointer">
+        第三方订阅主力：光速云 vs 星岛梦 vs 微风
+      </button>
+    </div>
+
+    <!-- Comparison Table (SSR Default for SEO + Live JS Hydration) -->
+    <div class="overflow-x-auto rounded-2xl border border-[var(--border-color)] bg-white shadow-xs">
+      <table class="w-full text-left text-sm" id="compare-table">
+        <thead class="border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
+          <tr id="compare-head-row">
+            <th class="w-44 px-4 py-4 font-bold text-[var(--text-primary)]">对比维度</th>
+            {defaultBrands.map((b) => (
+              <th class="min-w-60 px-4 py-4 font-bold text-[var(--brand-navy)]">
+                <a href={`/brands/${b.slug}/`} class="hover:text-[var(--brand-blue)] text-base">
+                  {b.name}
+                </a>
+                {b.isPromotedPartner && (
+                  <span class="ml-1.5 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
+                    合作推广
+                  </span>
+                )}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody id="compare-tbody" class="divide-y divide-slate-100">
+          <tr>
+            <td class="px-4 py-3.5 font-semibold text-[var(--text-secondary)]">资料核实状态</td>
+            {defaultBrands.map((b) => <td class="px-4 py-3.5 text-xs font-medium">{b.dataStatusLabel}</td>)}
+          </tr>
+          <tr>
+            <td class="px-4 py-3.5 font-semibold text-[var(--text-secondary)]">运营年份</td>
+            {defaultBrands.map((b) => <td class="px-4 py-3.5">{b.foundedYear}</td>)}
+          </tr>
+          <tr>
+            <td class="px-4 py-3.5 font-semibold text-[var(--text-secondary)]">线路与协议</td>
+            {defaultBrands.map((b) => <td class="px-4 py-3.5">{b.lineType} · {b.protocols}</td>)}
+          </tr>
+          <tr>
+            <td class="px-4 py-3.5 font-semibold text-[var(--text-secondary)]">客户端兼容</td>
+            {defaultBrands.map((b) => <td class="px-4 py-3.5 font-medium">{b.clientMode}</td>)}
+          </tr>
+          <tr>
+            <td class="px-4 py-3.5 font-semibold text-[var(--text-secondary)]">设备并发限制</td>
+            {defaultBrands.map((b) => <td class="px-4 py-3.5 text-xs">{b.deviceLimit}</td>)}
+          </tr>
+          <tr>
+            <td class="px-4 py-3.5 font-semibold text-[var(--text-secondary)]">参考起步口径</td>
+            {defaultBrands.map((b) => <td class="px-4 py-3.5 font-mono-num text-xs font-semibold">{b.startingPriceLabel}</td>)}
+          </tr>
+          <tr>
+            <td class="px-4 py-3.5 font-semibold text-[var(--text-secondary)]">单月付门槛</td>
+            {defaultBrands.map((b) => <td class="px-4 py-3.5 text-xs">{b.lowestMonthlyText}</td>)}
+          </tr>
+          <tr>
+            <td class="px-4 py-3.5 font-semibold text-[var(--text-secondary)]">不限时流量包</td>
+            {defaultBrands.map((b) => <td class="px-4 py-3.5 text-xs">{b.unexpiringText}</td>)}
+          </tr>
+          <tr>
+            <td class="px-4 py-3.5 font-semibold text-[var(--text-secondary)]">测速数据来源</td>
+            {defaultBrands.map((b) => <td class="px-4 py-3.5 text-xs">{b.speedSummary}</td>)}
+          </tr>
+          <tr>
+            <td class="px-4 py-3.5 font-semibold text-[var(--text-secondary)]">AI / 解锁备注</td>
+            {defaultBrands.map((b) => <td class="px-4 py-3.5 text-xs">{b.aiNote}</td>)}
+          </tr>
+          <tr>
+            <td class="px-4 py-3.5 font-semibold text-[var(--text-secondary)]">主要限制提醒</td>
+            {defaultBrands.map((b) => <td class="px-4 py-3.5 text-xs text-rose-800">{b.limitations}</td>)}
+          </tr>
+          <tr>
+            <td class="px-4 py-3.5 font-semibold text-[var(--text-secondary)]">优惠码与入口</td>
+            {defaultBrands.map((b) => (
+              <td class="px-4 py-3.5 text-xs space-y-2">
+                <div>优惠码：<code class="rounded bg-slate-100 px-1.5 py-0.5">{b.couponCode}</code></div>
+                <div class="flex flex-wrap gap-2">
+                  <a href={`/brands/${b.slug}/`} class="rounded-lg border border-[var(--border-strong)] px-2.5 py-1 font-semibold text-[var(--text-primary)] hover:border-[var(--brand-blue)]">
+                    完整档案
+                  </a>
+                  {b.registerUrl && (
+                    <a href={b.registerUrl} target="_blank" rel="nofollow sponsored noopener" class="rounded-lg bg-[var(--brand-blue)] px-2.5 py-1 font-semibold text-white hover:bg-[var(--brand-blue-hover)]">
+                      官网入口
+                    </a>
+                  )}
+                </div>
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</BaseLayout>
+
+<script define:vars={{ compactBrandData }}>
+  const brandMap = new Map(compactBrandData.map((b) => [b.slug, b]));
+  const s1 = document.getElementById('compare-slot-1');
+  const s2 = document.getElementById('compare-slot-2');
+  const s3 = document.getElementById('compare-slot-3');
+  const headRow = document.getElementById('compare-head-row');
+  const tbody = document.getElementById('compare-tbody');
+
+  function esc(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function renderComparison() {
+    if (!headRow || !tbody) return;
+    const selectedSlugs = [s1?.value, s2?.value, s3?.value].filter(Boolean);
+    const items = selectedSlugs.map((slug) => brandMap.get(slug)).filter(Boolean);
+    if (items.length === 0) return;
+
+    function brandHref(slug) {
+      return ['', 'brands', esc(slug), ''].join('/');
+    }
+
+    headRow.innerHTML =
+      `<th class="w-44 px-4 py-4 font-bold text-[var(--text-primary)]">对比维度</th>` +
+      items
+        .map(
+          (b) => `<th class="min-w-60 px-4 py-4 font-bold text-[var(--brand-navy)]">
+            <a href="${brandHref(b.slug)}" class="hover:text-[var(--brand-blue)] text-base">${esc(b.name)}</a>
+            ${b.isPromotedPartner ? '<span class="ml-1.5 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800">合作推广</span>' : ''}
+          </th>`
+        )
+        .join('');
+
+    const rows = [
+      ['资料核实状态', (b) => `<span class="text-xs font-medium">${esc(b.dataStatusLabel)}</span>`],
+      ['运营年份', (b) => esc(b.foundedYear)],
+      ['线路与协议', (b) => `${esc(b.lineType)} · ${esc(b.protocols)}`],
+      ['客户端兼容', (b) => `<span class="font-medium">${esc(b.clientMode)}</span>`],
+      ['设备并发限制', (b) => `<span class="text-xs">${esc(b.deviceLimit)}</span>`],
+      ['参考起步口径', (b) => `<span class="font-mono-num text-xs font-semibold">${esc(b.startingPriceLabel)}</span>`],
+      ['单月付门槛', (b) => `<span class="text-xs">${esc(b.lowestMonthlyText)}</span>`],
+      ['不限时流量包', (b) => `<span class="text-xs">${esc(b.unexpiringText)}</span>`],
+      ['节点覆盖摘录', (b) => `<span class="text-xs">${esc(b.nodeCountSummary)}</span>`],
+      ['测速数据来源', (b) => `<span class="text-xs">${esc(b.speedSummary)}</span>`],
+      ['AI / 解锁备注', (b) => `<span class="text-xs">${esc(b.aiNote)}</span>`],
+      ['主要限制提醒', (b) => `<span class="text-xs text-rose-800">${esc(b.limitations)}</span>`],
+      [
+        '优惠码与入口',
+        (b) => `<div class="text-xs space-y-2">
+          <div>优惠码：<code class="rounded bg-slate-100 px-1.5 py-0.5">${esc(b.couponCode)}</code></div>
+          ${b.urlWarning ? `<div class="text-amber-700">${esc(b.urlWarning)}</div>` : ''}
+          <div class="flex flex-wrap gap-2">
+            <a href="${brandHref(b.slug)}" class="rounded-lg border border-[var(--border-strong)] px-2.5 py-1 font-semibold text-[var(--text-primary)] hover:border-[var(--brand-blue)]">完整档案</a>
+            ${b.registerUrl ? `<a href="${esc(b.registerUrl)}" target="_blank" rel="nofollow sponsored noopener" class="rounded-lg bg-[var(--brand-blue)] px-2.5 py-1 font-semibold text-white hover:bg-[var(--brand-blue-hover)]">官网入口</a>` : ''}
+          </div>
+        </div>`,
+      ],
+    ];
+
+    tbody.innerHTML = rows
+      .map(
+        ([label, fn]) =>
+          `<tr><td class="px-4 py-3.5 font-semibold text-[var(--text-secondary)]">${label}</td>${items
+            .map((b) => `<td class="px-4 py-3.5 align-top">${fn(b)}</td>`)
+            .join('')}</tr>`
+      )
+      .join('');
+  }
+
+  [s1, s2, s3].forEach((sel) => sel?.addEventListener('change', renderComparison));
+
+  document.querySelectorAll('.preset-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const parts = (btn.dataset.preset || '').split(',');
+      if (s1 && parts[0]) s1.value = parts[0];
+      if (s2 && parts[1]) s2.value = parts[1];
+      if (s3) s3.value = parts[2] || '';
+      renderComparison();
+    });
+  });
+</script>

@@ -1,0 +1,6 @@
+﻿topic,question,answer_summary,target_url
+"光速云","光速云 8 元一个月是普通月付吗？","不是，8 元左右为 99 元/年轻量版年付折算均价；单月付极速版从 25 元/月（168GB）起。","/brands/guangsuyun/"
+"光速云","光速云轻量版是 59GB 还是 69GB？","资料中摘要与详细表分别记录过 59GB 与 69GB，当前主表为 69GB/月，下单请以官网实时页面为准。","/reviews/guangsuyun-deep-review/"
+"客户端","Clash for Windows 停更后用什么替代？","桌面端推荐使用基于 Mihomo 内核的 Clash Verge Rev 或 FlClash，多协议用户可选 v2rayN 或 Hiddify。","/guides/clash-verge-rev-beginner-guide/"
+"AI 解锁","为什么香港专线节点用不了网页版 ChatGPT 或 Gemini？","2026-08-19 实测显示香港节点对 OpenAI 多为仅 App 解锁、对 Gemini 普遍受限；建议在策略组中切换新加坡、日本或美国节点。","/articles/ai-and-streaming-unlock-guide/"
+"风控审计","为什么 32 家机场品牌清单实际建档为 31 家？","经审计 Firefly 与文末历史档案 Firefly 萤火虫指向同一推广主域，属于同一品牌重复条目，已合并去重。","/articles/brand-data-audit-summary/"

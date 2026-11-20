@@ -1,0 +1,22 @@
+---
+import { SITE } from '@/data/site';
+
+export interface Props {
+  compact?: boolean;
+}
+
+const { compact = false } = Astro.props;
+---
+
+<aside
+  class:list={[
+    'rounded-xl border border-amber-200 bg-amber-50/80 text-amber-950',
+    compact ? 'px-3.5 py-2.5 text-xs' : 'p-4 md:p-5 text-sm',
+  ]}
+  aria-label="商业合作与数据说明"
+>
+  <p class="leading-relaxed">
+    <strong class="font-semibold">透明披露：</strong>
+    {compact ? SITE.disclosure.short : SITE.disclosure.full}
+  </p>
+</aside>

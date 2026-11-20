@@ -1,0 +1,142 @@
+---
+import type { BrandSpeedReport } from '@/data/brands';
+
+export interface Props {
+  brandName: string;
+  accentColor?: string;
+  report: BrandSpeedReport;
+}
+
+const { brandName, accentColor = '#3B82F6', report } = Astro.props;
+
+const statusLabel = {
+  verified: 'Measured Data · 实测记录',
+  vendor: 'Benchmark / Vendor Data · 非晚高峰基准',
+  historical: 'Historical Data · 历史实测摘要',
+  unverified: 'Not Tested · 暂无可核实数据',
+}[report.dataStatus];
+
+const statusDot = {
+  verified: 'bg-emerald-400',
+  vendor: 'bg-sky-400',
+  historical: 'bg-amber-400',
+  unverified: 'bg-slate-400',
+}[report.dataStatus];
+
+const maxDownload = Math.max(
+  600,
+  ...report.nodes.map((n) => n.downloadMbps ?? 0)
+);
+---
+
+<section class="observatory-panel p-5 sm:p-7 my-6" aria-label={`${brandName} 测速与网络性能监测报告`}>
+  <div class="flex flex-col gap-3 border-b border-[var(--obs-border)] pb-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <div class="flex items-center gap-2 text-xs font-mono-num uppercase tracking-wider text-slate-400">
+        <span class="inline-block h-2 w-2 rounded-full" style={`background-color: ${accentColor}`}></span>
+        <span>NETWORK PERFORMANCE REPORT</span>
+      </div>
+      <h3 class="mt-1 text-lg sm:text-xl font-bold text-white">
+        {brandName} · 节点延迟与下载带宽监测
+      </h3>
+    </div>
+
+    <div class="inline-flex items-center gap-2 rounded-full border border-[var(--obs-border)] bg-[var(--obs-surface)] px-3 py-1.5 text-xs font-medium text-slate-200">
+      <span class:list={['h-2 w-2 rounded-full', statusDot]}></span>
+      <span>{statusLabel}</span>
+    </div>
+  </div>
+
+  <div class="mt-4 grid gap-3 sm:grid-cols-3 text-xs">
+    <div class="rounded-xl border border-[var(--obs-border)] bg-[var(--obs-surface)] p-3">
+      <div class="text-slate-400">测试日期与时段</div>
+      <div class="mt-1 font-mono-num font-semibold text-slate-100">
+        {report.testDate} · {report.isPeakHour ? '晚高峰' : '非晚高峰/基准'}
+      </div>
+    </div>
+    <div class="rounded-xl border border-[var(--obs-border)] bg-[var(--obs-surface)] p-3">
+      <div class="text-slate-400">测试环境 / 节点样本</div>
+      <div class="mt-1 font-medium text-slate-100 line-clamp-2">{report.testLocation}</div>
+    </div>
+    <div class="rounded-xl border border-[var(--obs-border)] bg-[var(--obs-surface)] p-3">
+      <div class="text-slate-400">数据来源</div>
+      <div class="mt-1 font-medium text-slate-100 line-clamp-2">{report.sourceLabel}</div>
+    </div>
+  </div>
+
+  {report.hasData && report.nodes.length > 0 ? (
+    <div class="mt-5 space-y-3">
+      {report.nodes.map((node) => {
+        const pct = node.downloadMbps ? Math.min(100, Math.round((node.downloadMbps / maxDownload) * 100)) : 0;
+        const latClass =
+          node.latencyMs === null
+            ? 'text-slate-400'
+            : node.latencyMs <= 60
+              ? 'text-emerald-400'
+              : node.latencyMs <= 120
+                ? 'text-amber-300'
+                : 'text-sky-300';
+        return (
+          <div class="rounded-xl border border-[var(--obs-border)] bg-[var(--obs-surface-alt)] p-3.5">
+            <div class="flex flex-wrap items-center justify-between gap-2 text-sm">
+              <div class="flex items-center gap-2.5">
+                <span class="font-semibold text-white">{node.nodeName ?? node.region}</span>
+                {node.note && <span class="text-xs text-slate-400">({node.note})</span>}
+              </div>
+              <div class="flex items-center gap-4 font-mono-num text-xs sm:text-sm">
+                <span class={latClass}>
+                  延迟：{node.latencyMs !== null ? `${node.latencyMs} ms` : '待核实'}
+                </span>
+                <span class="font-bold text-white">
+                  下载：{node.downloadMbps !== null ? `${node.downloadMbps} Mbps` : '待核实'}
+                </span>
+              </div>
+            </div>
+            {node.downloadMbps !== null && (
+              <div class="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-slate-800" aria-hidden="true">
+                <div
+                  class="h-full rounded-full transition-all"
+                  style={`width: ${pct}%; background-color: ${accentColor};`}
+                />
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  ) : (
+    <div class="mt-5 rounded-xl border border-dashed border-[var(--obs-border)] bg-[var(--obs-surface)] p-5 text-sm text-slate-300">
+      <strong>Not Tested：</strong>当前未收录 {brandName} 的逐地区可用测速数值。依据本站评测规范，不以示例数据或默认进度条替代真实实测结果。
+    </div>
+  )}
+
+  <p class="mt-4 text-xs sm:text-sm leading-relaxed text-slate-300 border-t border-[var(--obs-border)] pt-3.5">
+    <strong class="text-white">可读说明：</strong>{report.summary}
+  </p>
+
+  {report.screenshots && report.screenshots.length > 0 && (
+    <div class="mt-5 border-t border-[var(--obs-border)] pt-5">
+      <div class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+        原始实测截图档案（点击可新标签页查看原图）
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {report.screenshots.map((shot) => (
+          <figure class="overflow-hidden rounded-xl border border-[var(--obs-border)] bg-[var(--obs-surface)]">
+            <a href={shot.src} target="_blank" rel="noopener" class="block aspect-4/3 overflow-hidden bg-slate-900">
+              <img
+                src={shot.src}
+                alt={shot.alt}
+                class="h-full w-full object-cover object-top hover:scale-105 transition-transform duration-300"
+                loading="lazy"
+                decoding="async"
+              />
+            </a>
+            <figcaption class="p-2.5 text-[11px] leading-snug text-slate-300">
+              {shot.caption}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  )}
+</section>

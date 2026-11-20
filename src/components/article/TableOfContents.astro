@@ -1,0 +1,38 @@
+---
+export interface HeadingItem {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+export interface Props {
+  headings: HeadingItem[];
+}
+
+const { headings } = Astro.props;
+const tocItems = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+---
+
+{tocItems.length > 0 && (
+  <nav
+    class="rounded-2xl border border-[var(--border-color)] bg-white p-5 shadow-xs"
+    aria-label="文章目录"
+  >
+    <div class="mb-3 flex items-center justify-between border-b border-slate-100 pb-2.5">
+      <h2 class="text-sm font-bold text-[var(--text-primary)]">文章阅读目录</h2>
+      <span class="text-xs text-[var(--text-muted)]">{tocItems.length} 节</span>
+    </div>
+    <ul class="space-y-1.5 text-sm">
+      {tocItems.map((h) => (
+        <li class={h.depth === 3 ? 'pl-3.5 border-l border-slate-200' : ''}>
+          <a
+            href={`#${h.slug}`}
+            class="block py-0.5 leading-snug text-[var(--text-secondary)] hover:text-[var(--brand-blue)] transition-colors"
+          >
+            {h.text}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}

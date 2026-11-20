@@ -1,0 +1,359 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/common/Breadcrumb.astro';
+import BrandCard from '@/components/cards/BrandCard.astro';
+import DisclosureBanner from '@/components/common/DisclosureBanner.astro';
+import { ALL_BRANDS, DATA_STATUS_META } from '@/data/brands';
+import { SITE } from '@/data/site';
+
+const collectionSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: '机场品牌数据库（31 家独立核实品牌检索与筛选）',
+  url: new URL('/brands/', SITE.url).toString(),
+  inLanguage: 'zh-CN',
+};
+
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: '2026 中文机场品牌数据库（31家独立核实品牌）',
+  numberOfItems: ALL_BRANDS.length,
+  itemListElement: ALL_BRANDS.map((brand, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: brand.name,
+    url: new URL(`/brands/${brand.slug}/`, SITE.url).toString(),
+  })),
+};
+
+const countByStatus = {
+  verified: ALL_BRANDS.filter((b) => b.dataStatus === 'verified').length,
+  vendor: ALL_BRANDS.filter((b) => b.dataStatus === 'vendor').length,
+  historical: ALL_BRANDS.filter((b) => b.dataStatus === 'historical').length,
+  unverified: ALL_BRANDS.filter((b) => b.dataStatus === 'unverified').length,
+};
+---
+
+<BaseLayout
+  title="机场品牌数据库（31 家独立核实品牌检索与筛选）"
+  description="按价格门槛、IEPL/IPLC 专线类型、Clash 第三方订阅兼容性、AI/流媒体场景及不限时流量包筛选 31 家机场品牌，严格标明数据核实状态与更新日期。"
+  schemas={[collectionSchema, itemListSchema]}
+>
+  <section class="border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
+    <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <Breadcrumb items={[{ label: '机场推荐', href: '/airport/' }, { label: '品牌数据库' }]} />
+
+      <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div class="max-w-3xl">
+          <div class="mb-3 flex flex-wrap items-center gap-2 text-xs">
+            <span class="rounded-full bg-[var(--brand-blue)] px-3 py-1 font-semibold text-white">
+              31 家独立品牌档案（已去重审计）
+            </span>
+            <span class="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-medium text-emerald-800">
+              实测截图：{countByStatus.verified}
+            </span>
+            <span class="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 font-medium text-blue-800">
+              品牌资料：{countByStatus.vendor}
+            </span>
+            <span class="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 font-medium text-amber-800">
+              历史存档：{countByStatus.historical}
+            </span>
+            <span class="rounded-full border border-slate-300 bg-white px-3 py-1 font-medium text-slate-700">
+              待核实：{countByStatus.unverified}
+            </span>
+          </div>
+
+          <h1 class="text-3xl sm:text-4xl font-extrabold text-[var(--brand-navy)]">
+            机场品牌评测数据库
+          </h1>
+          <p class="mt-3 text-base leading-relaxed text-[var(--text-secondary)]">
+            全量收录经过去重审计的 31 家独立机场品牌（原始 32 条清单中 Firefly 重复条目已合并）。每个品牌均保留原始起步价口径、客户端兼容模式、协议标注及资料核实状态，最近全库核实日期：<strong class="text-[var(--text-primary)]">{SITE.editorialPolicy.lastAuditDate}</strong>。
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-2.5 shrink-0">
+          <a
+            href="/compare/"
+            class="inline-flex items-center rounded-xl bg-[var(--brand-blue)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-blue-hover)] transition-colors"
+          >
+            打开品牌并排对比器 →
+          </a>
+          <a
+            href="/articles/brand-data-audit-summary/"
+            class="inline-flex items-center rounded-xl border border-[var(--border-strong)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)]"
+          >
+            查看数据审计报告 →
+          </a>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <DisclosureBanner compact />
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Filter & Search Controls -->
+    <div class="mb-8 rounded-2xl border border-[var(--border-color)] bg-white p-5 shadow-xs space-y-4">
+      <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-6">
+        <div class="lg:col-span-2">
+          <label for="brand-search-input" class="mb-1 block text-xs font-semibold text-[var(--text-secondary)]">
+            品牌名称 / 协议 / 关键词搜索
+          </label>
+          <input
+            id="brand-search-input"
+            type="search"
+            placeholder="例如：光速云、VLESS、Hysteria、不限时..."
+            class="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3.5 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--brand-blue)] focus:bg-white focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label for="filter-line" class="mb-1 block text-xs font-semibold text-[var(--text-secondary)]">
+            线路类型
+          </label>
+          <select id="filter-line" class="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-2 text-sm">
+            <option value="all">全部线路</option>
+            <option value="IEPL">IEPL 专线</option>
+            <option value="IPLC">IPLC 专线</option>
+            <option value="IEPL/IPLC">IEPL/IPLC 混合</option>
+            <option value="BGP专线">BGP 专线</option>
+            <option value="中转优化">中转优化</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="filter-client" class="mb-1 block text-xs font-semibold text-[var(--text-secondary)]">
+            客户端支持
+          </label>
+          <select id="filter-client" class="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-2 text-sm">
+            <option value="all">全部方式</option>
+            <option value="third_party_ok">支持 Clash/小火箭订阅</option>
+            <option value="proprietary_and_third_party">自研 + 第三方双支持</option>
+            <option value="proprietary_only">仅专属客户端</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="filter-price" class="mb-1 block text-xs font-semibold text-[var(--text-secondary)]">
+            参考月均起步价
+          </label>
+          <select id="filter-price" class="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-2 text-sm">
+            <option value="all">不限价位</option>
+            <option value="under10">¥10/月以下（多为年付折算）</option>
+            <option value="10to20">¥10 – ¥20/月</option>
+            <option value="over20">¥20/月以上</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="brand-sort" class="mb-1 block text-xs font-semibold text-[var(--text-secondary)]">
+            排序方式
+          </label>
+          <select id="brand-sort" class="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-2 text-sm">
+            <option value="default">默认收录顺序</option>
+            <option value="price-asc">参考起步价从低到高</option>
+            <option value="price-desc">参考起步价从高到低</option>
+            <option value="verified-first">含实测截图优先</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3">
+        <div class="flex flex-wrap items-center gap-4 text-xs sm:text-sm">
+          <label class="inline-flex items-center gap-1.5 cursor-pointer">
+            <input id="filter-ai" type="checkbox" class="rounded border-slate-300 text-[var(--brand-blue)]" />
+            <span>侧重 AI 场景</span>
+          </label>
+          <label class="inline-flex items-center gap-1.5 cursor-pointer">
+            <input id="filter-streaming" type="checkbox" class="rounded border-slate-300 text-[var(--brand-blue)]" />
+            <span>流媒体解锁标注</span>
+          </label>
+          <label class="inline-flex items-center gap-1.5 cursor-pointer">
+            <input id="filter-unexpiring" type="checkbox" class="rounded border-slate-300 text-[var(--brand-blue)]" />
+            <span>含一次性不限时包</span>
+          </label>
+          <label class="inline-flex items-center gap-1.5 cursor-pointer">
+            <input id="filter-speed" type="checkbox" class="rounded border-slate-300 text-[var(--brand-blue)]" />
+            <span>含测速数据</span>
+          </label>
+        </div>
+
+        <div class="flex items-center gap-3 text-xs">
+          <span id="brand-result-count" class="font-semibold text-[var(--text-primary)]">
+            当前显示 {ALL_BRANDS.length} / {ALL_BRANDS.length} 家品牌
+          </span>
+          <button
+            id="brand-filter-reset"
+            type="button"
+            class="rounded-lg border border-[var(--border-color)] px-3 py-1 font-medium text-[var(--text-secondary)] hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)] cursor-pointer"
+          >
+            重置筛选
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Brand Cards Grid (SSR HTML for Search Engines) -->
+    <div id="brand-cards-grid" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {ALL_BRANDS.map((brand, idx) => (
+        <div
+          class="brand-card-wrapper"
+          data-index={idx}
+          data-name={`${brand.name} ${brand.englishName ?? ''} ${brand.aliases.join(' ')} ${brand.protocols.join(' ')} ${brand.positioning} ${brand.summary}`.toLowerCase()}
+          data-line={brand.lineType}
+          data-client={brand.clientMode}
+          data-price={brand.startingMonthlyPriceCny ?? 999}
+          data-ai={brand.aiFocus ? '1' : '0'}
+          data-streaming={brand.streamingFocus ? '1' : '0'}
+          data-unexpiring={brand.unexpiringPlanAvailable ? '1' : '0'}
+          data-speed={brand.speedReport.hasData ? '1' : '0'}
+          data-status={brand.dataStatus}
+        >
+          <BrandCard brand={brand} />
+        </div>
+      ))}
+    </div>
+
+    <!-- Empty State -->
+    <div id="brand-empty-state" class="hidden rounded-2xl border border-dashed border-[var(--border-strong)] bg-[var(--bg-secondary)] p-10 text-center">
+      <h2 class="text-lg font-bold text-[var(--text-primary)]">未找到符合当前筛选条件的品牌</h2>
+      <p class="mt-2 text-sm text-[var(--text-secondary)]">
+        建议放宽价格区间或取消部分勾选条件，再查看全部 31 家品牌档案。
+      </p>
+      <button
+        id="brand-empty-reset"
+        type="button"
+        class="mt-4 rounded-xl bg-[var(--brand-blue)] px-5 py-2 text-sm font-semibold text-white hover:bg-[var(--brand-blue-hover)] cursor-pointer"
+      >
+        恢复显示全部品牌
+      </button>
+    </div>
+
+    <!-- Status Legend -->
+    <div class="mt-12 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-6">
+      <h2 class="text-base font-bold text-[var(--text-primary)] mb-3">数据核实状态标签说明</h2>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-xs">
+        {Object.entries(DATA_STATUS_META).map(([_, meta]) => (
+          <div class="rounded-xl border border-[var(--border-color)] bg-white p-3.5">
+            <span class:list={['inline-block rounded-full border px-2.5 py-0.5 font-semibold mb-1.5', meta.badgeClass]}>
+              {meta.label}
+            </span>
+            <p class="text-[var(--text-secondary)] leading-relaxed">{meta.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const searchInput = document.getElementById('brand-search-input') as HTMLInputElement | null;
+  const lineSelect = document.getElementById('filter-line') as HTMLSelectElement | null;
+  const clientSelect = document.getElementById('filter-client') as HTMLSelectElement | null;
+  const priceSelect = document.getElementById('filter-price') as HTMLSelectElement | null;
+  const sortSelect = document.getElementById('brand-sort') as HTMLSelectElement | null;
+  const aiCheck = document.getElementById('filter-ai') as HTMLInputElement | null;
+  const streamingCheck = document.getElementById('filter-streaming') as HTMLInputElement | null;
+  const unexpiringCheck = document.getElementById('filter-unexpiring') as HTMLInputElement | null;
+  const speedCheck = document.getElementById('filter-speed') as HTMLInputElement | null;
+  const grid = document.getElementById('brand-cards-grid');
+  const countEl = document.getElementById('brand-result-count');
+  const emptyEl = document.getElementById('brand-empty-state');
+  const resetBtn = document.getElementById('brand-filter-reset');
+  const emptyResetBtn = document.getElementById('brand-empty-reset');
+
+  function applyBrandFilters() {
+    if (!grid) return;
+    const wrappers = Array.from(grid.querySelectorAll<HTMLElement>('.brand-card-wrapper'));
+    const q = (searchInput?.value ?? '').trim().toLowerCase();
+    const line = lineSelect?.value ?? 'all';
+    const client = clientSelect?.value ?? 'all';
+    const price = priceSelect?.value ?? 'all';
+    const sort = sortSelect?.value ?? 'default';
+    const needAi = aiCheck?.checked ?? false;
+    const needStream = streamingCheck?.checked ?? false;
+    const needUnexp = unexpiringCheck?.checked ?? false;
+    const needSpeed = speedCheck?.checked ?? false;
+
+    let visibleCount = 0;
+
+    wrappers.forEach((el) => {
+      const nameStr = el.dataset.name ?? '';
+      const elLine = el.dataset.line ?? '';
+      const elClient = el.dataset.client ?? '';
+      const elPrice = Number(el.dataset.price ?? 999);
+      const elAi = el.dataset.ai === '1';
+      const elStream = el.dataset.streaming === '1';
+      const elUnexp = el.dataset.unexpiring === '1';
+      const elSpeed = el.dataset.speed === '1';
+
+      let match = true;
+      if (q && !nameStr.includes(q)) match = false;
+      if (line !== 'all' && elLine !== line) match = false;
+
+      if (client === 'third_party_ok') {
+        if (elClient !== 'third_party' && elClient !== 'proprietary_and_third_party') match = false;
+      } else if (client !== 'all' && elClient !== client) {
+        match = false;
+      }
+
+      if (price === 'under10' && elPrice >= 10) match = false;
+      if (price === '10to20' && (elPrice < 10 || elPrice > 20)) match = false;
+      if (price === 'over20' && (elPrice <= 20 || elPrice >= 999)) match = false;
+
+      if (needAi && !elAi) match = false;
+      if (needStream && !elStream) match = false;
+      if (needUnexp && !elUnexp) match = false;
+      if (needSpeed && !elSpeed) match = false;
+
+      el.style.display = match ? '' : 'none';
+      if (match) visibleCount++;
+    });
+
+    // Sort visible nodes inside grid
+    const statusWeight: Record<string, number> = { verified: 0, vendor: 1, historical: 2, unverified: 3 };
+    wrappers.sort((a, b) => {
+      if (sort === 'price-asc') {
+        return Number(a.dataset.price) - Number(b.dataset.price);
+      }
+      if (sort === 'price-desc') {
+        const pa = Number(a.dataset.price) >= 999 ? -1 : Number(a.dataset.price);
+        const pb = Number(b.dataset.price) >= 999 ? -1 : Number(b.dataset.price);
+        return pb - pa;
+      }
+      if (sort === 'verified-first') {
+        const wa = statusWeight[a.dataset.status ?? 'unverified'] ?? 9;
+        const wb = statusWeight[b.dataset.status ?? 'unverified'] ?? 9;
+        if (wa !== wb) return wa - wb;
+      }
+      return Number(a.dataset.index) - Number(b.dataset.index);
+    });
+    wrappers.forEach((el) => grid.appendChild(el));
+
+    if (countEl) countEl.textContent = `当前显示 ${visibleCount} / ${wrappers.length} 家品牌`;
+    if (emptyEl) emptyEl.classList.toggle('hidden', visibleCount > 0);
+  }
+
+  function resetAllFilters() {
+    if (searchInput) searchInput.value = '';
+    if (lineSelect) lineSelect.value = 'all';
+    if (clientSelect) clientSelect.value = 'all';
+    if (priceSelect) priceSelect.value = 'all';
+    if (sortSelect) sortSelect.value = 'default';
+    if (aiCheck) aiCheck.checked = false;
+    if (streamingCheck) streamingCheck.checked = false;
+    if (unexpiringCheck) unexpiringCheck.checked = false;
+    if (speedCheck) speedCheck.checked = false;
+    applyBrandFilters();
+  }
+
+  [searchInput, lineSelect, clientSelect, priceSelect, sortSelect, aiCheck, streamingCheck, unexpiringCheck, speedCheck]
+    .forEach((el) => el?.addEventListener('input', applyBrandFilters));
+  [lineSelect, clientSelect, priceSelect, sortSelect, aiCheck, streamingCheck, unexpiringCheck, speedCheck]
+    .forEach((el) => el?.addEventListener('change', applyBrandFilters));
+  resetBtn?.addEventListener('click', resetAllFilters);
+  emptyResetBtn?.addEventListener('click', resetAllFilters);
+</script>

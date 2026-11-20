@@ -1,0 +1,113 @@
+---
+import type { ServiceUnlockItem, UnlockStatus } from '@/data/brands';
+
+export interface Props {
+  brandName: string;
+  matrix: ServiceUnlockItem[];
+  summaryNote: string;
+}
+
+const { brandName, matrix, summaryNote } = Astro.props;
+
+const statusMeta: Record<UnlockStatus, { label: string; dot: string; badge: string }> = {
+  supported: {
+    label: 'Measured · 实测解锁',
+    dot: 'bg-emerald-400',
+    badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+  },
+  partial: {
+    label: 'Partial · 视节点/限App',
+    dot: 'bg-amber-400',
+    badge: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+  },
+  unsupported: {
+    label: 'Unavailable · 实测受限',
+    dot: 'bg-rose-400',
+    badge: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
+  },
+  vendor_claimed: {
+    label: 'Vendor Data · 资料标注',
+    dot: 'bg-sky-400',
+    badge: 'bg-sky-500/15 text-sky-300 border-sky-500/30',
+  },
+  untested: {
+    label: 'Not Tested · 尚未测试',
+    dot: 'bg-slate-400',
+    badge: 'bg-slate-500/15 text-slate-300 border-slate-500/30',
+  },
+};
+
+const aiItems = matrix.filter((m) => m.category === 'ai');
+const streamingItems = matrix.filter((m) => m.category === 'streaming');
+---
+
+<section class="observatory-panel p-5 sm:p-7 my-6" aria-label={`${brandName} AI 与流媒体可用性矩阵`}>
+  <div class="flex flex-col gap-2 border-b border-[var(--obs-border)] pb-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <div class="text-xs font-mono-num uppercase tracking-wider text-slate-400">
+        SERVICE AVAILABILITY MATRIX
+      </div>
+      <h3 class="mt-1 text-lg sm:text-xl font-bold text-white">
+        {brandName} · AI 工具与海外流媒体可用性状态
+      </h3>
+    </div>
+    <div class="flex flex-wrap gap-2 text-[11px] text-slate-300">
+      <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-emerald-400"></span>实测支持</span>
+      <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-sky-400"></span>品牌宣称</span>
+      <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-amber-400"></span>视节点</span>
+      <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-slate-400"></span>未测试</span>
+    </div>
+  </div>
+
+  <div class="mt-5 space-y-5">
+    <div>
+      <h4 class="mb-2.5 text-xs font-semibold uppercase tracking-wider text-slate-400">
+        AI 生产力工具（ChatGPT / Claude / Gemini）
+      </h4>
+      <div class="grid gap-3 sm:grid-cols-3">
+        {aiItems.map((item) => {
+          const meta = statusMeta[item.status];
+          return (
+            <div class="rounded-xl border border-[var(--obs-border)] bg-[var(--obs-surface)] p-3.5">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-bold text-white">{item.service}</span>
+                <span class:list={['inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium', meta.badge]}>
+                  <span class:list={['h-1.5 w-1.5 rounded-full', meta.dot]}></span>
+                  {meta.label}
+                </span>
+              </div>
+              <p class="mt-2 text-xs leading-relaxed text-slate-300">{item.detail}</p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+
+    <div>
+      <h4 class="mb-2.5 text-xs font-semibold uppercase tracking-wider text-slate-400">
+        主流海外流媒体与音视频平台
+      </h4>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {streamingItems.map((item) => {
+          const meta = statusMeta[item.status];
+          return (
+            <div class="rounded-xl border border-[var(--obs-border)] bg-[var(--obs-surface)] p-3.5">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-bold text-white">{item.service}</span>
+                <span class:list={['inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium', meta.badge]}>
+                  <span class:list={['h-1.5 w-1.5 rounded-full', meta.dot]}></span>
+                  {meta.label}
+                </span>
+              </div>
+              <p class="mt-2 text-xs leading-relaxed text-slate-300">{item.detail}</p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+
+  <p class="mt-4 border-t border-[var(--obs-border)] pt-3.5 text-xs sm:text-sm leading-relaxed text-slate-300">
+    <strong class="text-white">核查说明：</strong>{summaryNote}
+  </p>
+</section>

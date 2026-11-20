@@ -1,0 +1,48 @@
+---
+import '@/styles/global.css';
+import SEOHead from '@/components/common/SEOHead.astro';
+import Header from '@/components/navigation/Header.astro';
+import Footer from '@/components/navigation/Footer.astro';
+import BackToTop from '@/components/common/BackToTop.astro';
+
+export interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  omitCanonical?: boolean;
+  ogType?: 'website' | 'article';
+  ogImage?: string;
+  pubDate?: Date;
+  updatedDate?: Date;
+  author?: string;
+  noindex?: boolean;
+  noindexFollow?: boolean;
+  schemas?: Record<string, unknown>[];
+}
+
+const props = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <SEOHead {...props} />
+  </head>
+  <body class="min-h-screen flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)]">
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-[var(--brand-blue)] focus:px-4 focus:py-2 focus:text-white"
+    >
+      跳至正文内容
+    </a>
+
+    <Header />
+
+    <main id="main-content" class="flex-1">
+      <slot />
+    </main>
+
+    <Footer />
+    <BackToTop />
+  </body>
+</html>

@@ -1,0 +1,24 @@
+---
+import type { AnyEntry } from '@/utils/content';
+import RelatedArticleCard from '@/components/cards/RelatedArticleCard.astro';
+
+export interface Props {
+  entries: AnyEntry[];
+  title?: string;
+}
+
+const { entries, title = '延伸阅读与相关内容' } = Astro.props;
+---
+
+{entries.length > 0 && (
+  <section class="mt-10 border-t border-[var(--border-color)] pt-8" aria-labelledby="related-articles-heading">
+    <h2 id="related-articles-heading" class="mb-5 text-xl font-bold text-[var(--text-primary)]">
+      {title}
+    </h2>
+    <div class="grid gap-4 sm:grid-cols-2">
+      {entries.map((entry) => (
+        <RelatedArticleCard entry={entry} />
+      ))}
+    </div>
+  </section>
+)}

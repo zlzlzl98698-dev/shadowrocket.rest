@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Disallow: /pagefind/
+
+Sitemap: https://shadowrocket.rest/sitemap.xml
+Sitemap: https://shadowrocket.rest/sitemap-index.xml

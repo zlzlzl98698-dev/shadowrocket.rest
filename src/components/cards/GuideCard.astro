@@ -1,0 +1,42 @@
+---
+import type { AnyEntry } from '@/utils/content';
+import { estimateReadingMinutes, getEntryUrl } from '@/utils/content';
+
+export interface Props {
+  entry: AnyEntry;
+}
+
+const { entry } = Astro.props;
+const url = getEntryUrl(entry);
+const readMinutes = estimateReadingMinutes(entry.body);
+const platforms = 'platforms' in entry.data ? entry.data.platforms : [];
+const difficulty = 'difficulty' in entry.data ? entry.data.difficulty : '入门';
+---
+
+<article class="editorial-card flex flex-col justify-between p-5">
+  <div>
+    <div class="mb-2.5 flex flex-wrap items-center gap-2 text-xs">
+      <span class="rounded-md bg-emerald-50 px-2.5 py-0.5 font-semibold text-emerald-700">
+        {difficulty}教程
+      </span>
+      {platforms.slice(0, 3).map((p) => (
+        <span class="rounded-md bg-[var(--bg-secondary)] px-2 py-0.5 text-[var(--text-secondary)]">
+          {p}
+        </span>
+      ))}
+    </div>
+
+    <h3 class="mb-2 text-base sm:text-lg font-bold leading-snug text-[var(--text-primary)]">
+      <a href={url} class="hover:text-[var(--brand-blue)] transition-colors">{entry.data.title}</a>
+    </h3>
+
+    <p class="mb-4 text-sm leading-relaxed text-[var(--text-secondary)] line-clamp-2">
+      {entry.data.excerpt ?? entry.data.description}
+    </p>
+  </div>
+
+  <div class="flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-[var(--text-secondary)]">
+    <span>约 {readMinutes} 分钟阅读</span>
+    <a href={url} class="font-semibold text-[var(--brand-blue)] hover:underline">查看步骤 →</a>
+  </div>
+</article>

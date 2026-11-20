@@ -1,0 +1,17 @@
+---
+import TopicPageRenderer from '@/components/topic/TopicPageRenderer.astro';
+import { getPillarByKey, getTopicBySlug } from '@/data/navigation';
+
+export function getStaticPaths() {
+  const pillar = getPillarByKey('vpn');
+  return pillar.items.map((item) => ({
+    params: { topic: item.slug },
+  }));
+}
+
+const { topic: topicSlug } = Astro.params;
+const pillar = getPillarByKey('vpn');
+const topic = getTopicBySlug('vpn', topicSlug)!;
+---
+
+<TopicPageRenderer pillar={pillar} topic={topic} />

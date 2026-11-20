@@ -1,0 +1,13 @@
+---
+import BaseLayout, { type Props as BaseProps } from './BaseLayout.astro';
+
+export interface Props extends BaseProps {}
+
+const props = Astro.props;
+---
+
+<BaseLayout {...props}>
+  <div class="w-full">
+    <slot />
+  </div>
+</BaseLayout>

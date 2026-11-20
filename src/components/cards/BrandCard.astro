@@ -1,0 +1,94 @@
+---
+import type { BrandProfile } from '@/data/brands';
+import { DATA_STATUS_META } from '@/data/brands';
+import BrandLogo from '@/components/common/BrandLogo.astro';
+
+export interface Props {
+  brand: BrandProfile;
+  compact?: boolean;
+}
+
+const { brand, compact = false } = Astro.props;
+const statusMeta = DATA_STATUS_META[brand.dataStatus];
+---
+
+<article class="editorial-card flex flex-col justify-between p-5 sm:p-6 h-full">
+  <div>
+    <div class="mb-4 flex items-start justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <BrandLogo name={brand.name} logo={brand.logo} accentColor={brand.accentColor} size="md" />
+        <div>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <h3 class="text-lg font-bold text-[var(--text-primary)]">
+              <a href={`/brands/${brand.slug}/`} class="hover:text-[var(--brand-blue)] transition-colors">
+                {brand.name}
+              </a>
+            </h3>
+            {brand.isPromotedPartner && (
+              <span class="rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
+                合作推荐
+              </span>
+            )}
+          </div>
+          <div class="text-xs text-[var(--text-secondary)]">
+            {brand.foundedYear === '待核实' ? '运营年份待核实' : `${brand.foundedYear}年运营`} · {brand.lineType}
+          </div>
+        </div>
+      </div>
+
+      <span class:list={['shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-medium', statusMeta.badgeClass]}>
+        {statusMeta.label}
+      </span>
+    </div>
+
+    <p class="mb-4 text-sm leading-relaxed text-[var(--text-secondary)] line-clamp-2">
+      {brand.summary}
+    </p>
+
+    <div class="mb-4 grid grid-cols-2 gap-2.5 rounded-xl bg-[var(--bg-secondary)] p-3 text-xs">
+      <div>
+        <div class="text-[var(--text-muted)]">参考起步价</div>
+        <div class="mt-0.5 font-semibold text-[var(--text-primary)] font-mono-num">
+          {brand.startingMonthlyPriceCny !== null ? `¥${brand.startingMonthlyPriceCny}/月起` : '待核实'}
+        </div>
+        <div class="text-[11px] text-[var(--text-secondary)]">{brand.startingPriceType}</div>
+      </div>
+      <div>
+        <div class="text-[var(--text-muted)]">客户端支持</div>
+        <div class="mt-0.5 font-semibold text-[var(--text-primary)] line-clamp-1">
+          {brand.clientMode === 'proprietary_only' ? '仅专属客户端' : brand.clientMode === 'proprietary_and_third_party' ? '自研 + 第三方' : brand.clientMode === 'third_party' ? '第三方订阅' : '待核实'}
+        </div>
+        <div class="text-[11px] text-[var(--text-secondary)] line-clamp-1">
+          {brand.protocols.slice(0, 2).join(' / ')}
+        </div>
+      </div>
+    </div>
+
+    {!compact && (
+      <div class="mb-4 flex flex-wrap gap-1.5">
+        {brand.aiFocus && (
+          <span class="rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">AI 场景</span>
+        )}
+        {brand.streamingFocus && (
+          <span class="rounded-md bg-indigo-50 px-2 py-0.5 text-[11px] font-medium text-indigo-700">流媒体</span>
+        )}
+        {brand.unexpiringPlanAvailable && (
+          <span class="rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">含不限时包</span>
+        )}
+        {brand.speedReport.hasData && (
+          <span class="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">含测速数据</span>
+        )}
+      </div>
+    )}
+  </div>
+
+  <div class="flex items-center justify-between gap-2 border-t border-slate-100 pt-3.5 text-xs">
+    <span class="text-[var(--text-muted)]">核实：{brand.verifiedDate}</span>
+    <a
+      href={`/brands/${brand.slug}/`}
+      class="inline-flex items-center gap-1 font-semibold text-[var(--brand-blue)] hover:underline"
+    >
+      查看评测与套餐 →
+    </a>
+  </div>
+</article>

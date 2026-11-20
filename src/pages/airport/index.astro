@@ -1,0 +1,40 @@
+---
+import CategoryLayout from '@/layouts/CategoryLayout.astro';
+import ArticleCard from '@/components/cards/ArticleCard.astro';
+import BrandCard from '@/components/cards/BrandCard.astro';
+import DisclosureBanner from '@/components/common/DisclosureBanner.astro';
+import { getPillarByKey } from '@/data/navigation';
+import { getBrandsBySlugs } from '@/data/brands';
+import { getAllPublishedEntries } from '@/utils/content';
+
+const pillar = getPillarByKey('airport');
+const allEntries = await getAllPublishedEntries();
+const pillarEntries = allEntries.filter((e) => e.data.pillar === 'airport');
+const topBrands = getBrandsBySlugs(['guangsuyun', 'muguang', 'feimao', 'weifeng', 'xingdaomeng', 'yifan']);
+---
+
+<CategoryLayout pillar={pillar}>
+  <section>
+    <div class="mb-5 flex items-end justify-between">
+      <h2 class="text-2xl font-bold text-[var(--brand-navy)]">精选机场选型与评测内容</h2>
+      <a href="/brands/" class="text-sm font-semibold text-[var(--brand-blue)] hover:underline">
+        查看全部 31 家品牌 →
+      </a>
+    </div>
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {pillarEntries.map((entry) => (
+        <ArticleCard entry={entry} />
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <h2 class="mb-4 text-2xl font-bold text-[var(--brand-navy)]">代表性机场品牌速览</h2>
+    <div class="mb-5"><DisclosureBanner compact /></div>
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {topBrands.map((brand) => (
+        <BrandCard brand={brand} />
+      ))}
+    </div>
+  </section>
+</CategoryLayout>

@@ -1,0 +1,124 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/common/Breadcrumb.astro';
+import { CLIENT_PLATFORMS } from '@/data/clients';
+import { SITE } from '@/data/site';
+
+const clientSchemas = CLIENT_PLATFORMS.flatMap((group) =>
+  group.clients.slice(0, 2).map((c) => ({
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: c.name,
+    operatingSystem: group.shortName,
+    applicationCategory: 'UtilitiesApplication',
+    description: `${c.core}：${c.features}`,
+    url: new URL(`/clients/#${group.id}`, SITE.url).toString(),
+  }))
+);
+---
+
+<BaseLayout
+  title="2026 第三方代理客户端大全（Win/Android/iOS/Mac/Linux/OpenWrt）"
+  description="核对 Windows、Android、iOS、macOS、Linux 与 OpenWrt 软路由主流开源代理客户端（Clash Verge Rev、FlClash、v2rayN、Shadowrocket、OpenClash、Nikki），区分官方项目渠道与维护风险。"
+  schemas={clientSchemas}
+>
+  <section class="border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
+    <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <Breadcrumb items={[{ label: 'Clash 客户端', href: '/clash/' }, { label: '代理客户端大全' }]} />
+
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-[var(--brand-navy)]">
+        2026 全平台第三方代理客户端大全
+      </h1>
+      <p class="mt-3 max-w-3xl text-base leading-relaxed text-[var(--text-secondary)]">
+        代理软件主要分为<strong class="text-[var(--text-primary)]">通用第三方客户端</strong>（可导入支持订阅的机场配置）与<strong class="text-[var(--text-primary)]">机场专属客户端</strong>（仅用品牌账号登录）。本页按操作系统整理已核实的开源与商店项目，切勿轻信搜索引擎仿冒站点。
+      </p>
+
+      <div class="mt-6 flex flex-wrap gap-2">
+        {CLIENT_PLATFORMS.map((group) => (
+          <a
+            href={`#${group.id}`}
+            class="rounded-full border border-[var(--border-color)] bg-white px-4 py-1.5 text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)] transition-colors"
+          >
+            {group.shortName}（{group.clients.length}）
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 space-y-12" data-pagefind-body>
+    {CLIENT_PLATFORMS.map((group) => (
+      <section id={group.id} class="scroll-mt-24">
+        <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-[var(--brand-blue)]">{group.shortName} PLATFORM</span>
+            <h2 class="text-2xl font-bold text-[var(--brand-navy)]">{group.platform}</h2>
+            <p class="mt-1 text-sm text-[var(--text-secondary)]">{group.summary}</p>
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            {group.coreKeywords.map((kw) => (
+              <span class="rounded-md bg-[var(--bg-secondary)] px-2.5 py-0.5 text-xs text-[var(--text-secondary)]">
+                {kw}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div class="mb-4 rounded-xl border border-blue-200 bg-[var(--brand-blue-soft)] p-3.5 text-xs sm:text-sm text-[var(--text-primary)]">
+          <strong>平台配置提示：</strong>{group.platformTip}
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {group.clients.map((client) => (
+            <div class="editorial-card flex flex-col justify-between p-5">
+              <div>
+                <div class="mb-2 flex items-start justify-between gap-2">
+                  <h3 class="text-base font-bold text-[var(--text-primary)]">{client.name}</h3>
+                  {client.recommended && (
+                    <span class="shrink-0 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">
+                      主流推荐
+                    </span>
+                  )}
+                </div>
+                <div class="mb-2 text-xs font-medium text-[var(--brand-blue)]">
+                  内核/架构：{client.core}
+                </div>
+                <p class="text-sm leading-relaxed text-[var(--text-secondary)]">
+                  {client.features}
+                </p>
+                {client.caution && (
+                  <p class="mt-2.5 rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-900">
+                    <strong>注意：</strong>{client.caution}
+                  </p>
+                )}
+              </div>
+
+              <div class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-[var(--text-muted)]">
+                <span>渠道：{client.sourceLabel}</span>
+                <span class="font-medium text-[var(--text-primary)]">{client.pricingNote}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    ))}
+
+    <section class="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-6">
+      <h2 class="text-lg font-bold text-[var(--brand-navy)] mb-3">配套客户端图文与故障排查教程</h2>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm font-semibold">
+        <a href="/guides/clash-verge-rev-beginner-guide/" class="rounded-xl border border-[var(--border-color)] bg-white p-4 hover:border-[var(--brand-blue)] text-[var(--brand-blue)]">
+          Clash Verge Rev 入门教程 →
+        </a>
+        <a href="/guides/shadowrocket-ios-setup/" class="rounded-xl border border-[var(--border-color)] bg-white p-4 hover:border-[var(--brand-blue)] text-[var(--brand-blue)]">
+          iOS Shadowrocket 小火箭教程 →
+        </a>
+        <a href="/guides/android-proxy-clients-guide/" class="rounded-xl border border-[var(--border-color)] bg-white p-4 hover:border-[var(--brand-blue)] text-[var(--brand-blue)]">
+          Android 客户端与防断流 →
+        </a>
+        <a href="/guides/openwrt-router-proxy-guide/" class="rounded-xl border border-[var(--border-color)] bg-white p-4 hover:border-[var(--brand-blue)] text-[var(--brand-blue)]">
+          OpenWrt 软路由插件核对 →
+        </a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

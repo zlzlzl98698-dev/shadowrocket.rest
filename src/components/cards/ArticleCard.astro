@@ -1,0 +1,77 @@
+---
+import type { AnyEntry } from '@/utils/content';
+import { estimateReadingMinutes, formatZhDate, getEntryUrl, getKindLabel } from '@/utils/content';
+
+export interface Props {
+  entry: AnyEntry;
+  horizontal?: boolean;
+}
+
+const { entry, horizontal = false } = Astro.props;
+const url = getEntryUrl(entry);
+const readMinutes = estimateReadingMinutes(entry.body);
+const kindLabel = getKindLabel(entry.kind);
+const pubDateStr = formatZhDate(entry.data.pubDate);
+const updatedDateStr = entry.data.updatedDate ? formatZhDate(entry.data.updatedDate) : null;
+---
+
+<article
+  class:list={[
+    'editorial-card overflow-hidden flex',
+    horizontal ? 'flex-col md:flex-row' : 'flex-col',
+  ]}
+>
+  <a
+    href={url}
+    class:list={[
+      'block overflow-hidden bg-slate-100 shrink-0',
+      horizontal ? 'aspect-16/10 md:aspect-auto md:w-72' : 'aspect-16/9 w-full',
+    ]}
+  >
+    <img
+      src={entry.data.cover}
+      alt={entry.data.coverAlt ?? entry.data.title}
+      class="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.03]"
+      loading="lazy"
+      decoding="async"
+    />
+  </a>
+
+  <div class="flex flex-1 flex-col justify-between p-5 sm:p-6">
+    <div>
+      <div class="mb-2.5 flex flex-wrap items-center gap-2 text-xs">
+        <span class="rounded-full bg-[var(--brand-blue-soft)] px-2.5 py-0.5 font-semibold text-[var(--brand-blue)]">
+          {entry.data.category}
+        </span>
+        <span class="rounded-full border border-[var(--border-color)] px-2.5 py-0.5 font-medium text-[var(--text-secondary)]">
+          {kindLabel}
+        </span>
+        <span class="text-[var(--text-muted)]">· {readMinutes} 分钟阅读</span>
+      </div>
+
+      <h3 class="mb-2 text-lg sm:text-xl font-bold leading-snug text-[var(--text-primary)]">
+        <a href={url} class="hover:text-[var(--brand-blue)] transition-colors">
+          {entry.data.title}
+        </a>
+      </h3>
+
+      <p class="mb-4 line-clamp-2 text-sm leading-relaxed text-[var(--text-secondary)]">
+        {entry.data.excerpt ?? entry.data.description}
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3.5 text-xs text-[var(--text-secondary)]">
+      <div class="flex items-center gap-2">
+        <span class="font-medium text-[var(--text-primary)]">{entry.data.author}</span>
+        <span>·</span>
+        <time datetime={entry.data.pubDate.toISOString()}>{pubDateStr}</time>
+        {updatedDateStr && updatedDateStr !== pubDateStr && (
+          <span class="hidden sm:inline text-[var(--text-muted)]">(更新于 {updatedDateStr})</span>
+        )}
+      </div>
+      <a href={url} class="font-semibold text-[var(--brand-blue)] hover:underline">
+        阅读全文 →
+      </a>
+    </div>
+  </div>
+</article>

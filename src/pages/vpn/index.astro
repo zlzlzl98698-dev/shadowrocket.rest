@@ -1,0 +1,32 @@
+---
+import CategoryLayout from '@/layouts/CategoryLayout.astro';
+import ArticleCard from '@/components/cards/ArticleCard.astro';
+import ComparisonCard from '@/components/cards/ComparisonCard.astro';
+import { getPillarByKey } from '@/data/navigation';
+import { getAllPublishedEntries } from '@/utils/content';
+
+const pillar = getPillarByKey('vpn');
+const allEntries = await getAllPublishedEntries();
+const vpnEntries = allEntries.filter((e) => e.data.pillar === 'vpn');
+const comparisons = allEntries.filter((e) => e.kind === 'comparisons');
+---
+
+<CategoryLayout pillar={pillar}>
+  <section>
+    <h2 class="mb-5 text-2xl font-bold text-[var(--brand-navy)]">VPN 与加速器评测文章</h2>
+    <div class="space-y-5">
+      {vpnEntries.map((entry) => (
+        <ArticleCard entry={entry} horizontal />
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <h2 class="mb-5 text-2xl font-bold text-[var(--brand-navy)]">主流产品横向对比</h2>
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {comparisons.map((entry) => (
+        <ComparisonCard entry={entry} />
+      ))}
+    </div>
+  </section>
+</CategoryLayout>

@@ -1,0 +1,57 @@
+---
+import { getBrandBySlug, getBrandAffiliate } from '@/data/brands';
+import BrandLogo from '@/components/common/BrandLogo.astro';
+import AffiliateLink from './AffiliateLink.astro';
+
+export interface Props {
+  brandSlug: string;
+  heading?: string;
+}
+
+const { brandSlug, heading } = Astro.props;
+const brand = getBrandBySlug(brandSlug);
+const aff = getBrandAffiliate(brandSlug);
+---
+
+{brand && (
+  <aside class="my-8 rounded-2xl border border-blue-200 bg-linear-to-br from-[var(--brand-blue-soft)] to-white p-5 sm:p-6">
+    <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+      <div class="flex items-start gap-4">
+        <BrandLogo name={brand.name} logo={brand.logo} accentColor={brand.accentColor} size="md" />
+        <div class="space-y-1.5">
+          <div class="flex flex-wrap items-center gap-2">
+            <h3 class="text-lg font-bold text-[var(--text-primary)]">
+              {heading ?? `${brand.name} · 核实档案与方案入口`}
+            </h3>
+            {brand.isPromotedPartner && (
+              <span class="rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800">
+                合作推广品牌
+              </span>
+            )}
+          </div>
+          <p class="text-sm text-[var(--text-secondary)]">
+            {brand.positioning} · 参考起步：{brand.startingPriceLabel}
+          </p>
+          <p class="text-xs text-[var(--text-secondary)]">
+            适合人群：{brand.suitableFor[0] ?? '日常跨境网络访问'} · 购买建议：优先小额月付实测当地晚高峰。
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-col items-start md:items-end gap-2 shrink-0">
+        <div class="flex flex-wrap gap-2.5">
+          <a
+            href={`/brands/${brand.slug}/`}
+            class="inline-flex items-center rounded-xl border border-[var(--border-strong)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)] transition-colors"
+          >
+            查看完整评测
+          </a>
+          {aff && <AffiliateLink brandSlug={brand.slug} showDisclosure={false} />}
+        </div>
+        <p class="text-[11px] text-[var(--text-muted)]">
+          含推广链接，通过链接注册可能为本站带来佣金，不影响用户支付价格。
+        </p>
+      </div>
+    </div>
+  </aside>
+)}

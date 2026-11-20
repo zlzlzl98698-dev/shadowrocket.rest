@@ -1,0 +1,28 @@
+---
+export interface Props {
+  sources: string[];
+  verifiedDate?: string;
+  testDate?: string;
+  reviewStatus?: string;
+}
+
+const { sources = [], verifiedDate, testDate, reviewStatus } = Astro.props;
+---
+
+{(sources.length > 0 || verifiedDate || testDate) && (
+  <section class="mt-8 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-5 text-sm" aria-label="内容资料来源与核实记录">
+    <h2 class="mb-2.5 text-base font-bold text-[var(--text-primary)]">资料来源与核实状态</h2>
+    <div class="flex flex-wrap gap-x-6 gap-y-1.5 text-xs text-[var(--text-secondary)] mb-2.5">
+      {verifiedDate && <span>最近核实日期：<strong class="text-[var(--text-primary)]">{verifiedDate}</strong></span>}
+      {testDate && <span>测试数据日期：<strong class="text-[var(--text-primary)]">{testDate}</strong></span>}
+      {reviewStatus && <span>审核状态：<strong class="text-[var(--text-primary)]">{reviewStatus}</strong></span>}
+    </div>
+    {sources.length > 0 && (
+      <ul class="list-disc pl-5 text-xs text-[var(--text-secondary)] space-y-1">
+        {sources.map((src) => (
+          <li>{src}</li>
+        ))}
+      </ul>
+    )}
+  </section>
+)}

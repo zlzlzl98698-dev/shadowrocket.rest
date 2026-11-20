@@ -1,0 +1,57 @@
+---
+import type { AnyEntry } from '@/utils/content';
+import { estimateReadingMinutes, formatZhDate, getEntryUrl, getKindLabel } from '@/utils/content';
+
+export interface Props {
+  entry: AnyEntry;
+}
+
+const { entry } = Astro.props;
+const url = getEntryUrl(entry);
+const readMinutes = estimateReadingMinutes(entry.body);
+const kindLabel = getKindLabel(entry.kind);
+---
+
+<article class="editorial-card overflow-hidden flex flex-col h-full bg-white">
+  <a href={url} class="block aspect-16/9 w-full overflow-hidden bg-slate-900">
+    <img
+      src={entry.data.cover}
+      alt={entry.data.coverAlt ?? entry.data.title}
+      class="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.03]"
+      loading="eager"
+      decoding="async"
+    />
+  </a>
+  <div class="flex flex-1 flex-col justify-between p-6 md:p-7">
+    <div>
+      <div class="mb-3 flex flex-wrap items-center gap-2 text-xs">
+        <span class="rounded-full bg-[var(--brand-blue)] px-3 py-0.5 font-semibold text-white">
+          编辑精选
+        </span>
+        <span class="rounded-full bg-[var(--brand-blue-soft)] px-3 py-0.5 font-semibold text-[var(--brand-blue)]">
+          {entry.data.category}
+        </span>
+        <span class="text-[var(--text-secondary)]">{kindLabel} · {readMinutes} 分钟</span>
+      </div>
+
+      <h3 class="mb-3 text-xl md:text-2xl font-bold leading-snug text-[var(--text-primary)]">
+        <a href={url} class="hover:text-[var(--brand-blue)] transition-colors">
+          {entry.data.title}
+        </a>
+      </h3>
+
+      <p class="mb-5 text-sm md:text-base leading-relaxed text-[var(--text-secondary)]">
+        {entry.data.excerpt ?? entry.data.description}
+      </p>
+    </div>
+
+    <div class="flex items-center justify-between border-t border-slate-100 pt-4 text-xs md:text-sm text-[var(--text-secondary)]">
+      <span>
+        {entry.data.author} · <time datetime={entry.data.pubDate.toISOString()}>{formatZhDate(entry.data.pubDate)}</time>
+      </span>
+      <a href={url} class="font-semibold text-[var(--brand-blue)] hover:underline">
+        深入阅读 →
+      </a>
+    </div>
+  </div>
+</article>

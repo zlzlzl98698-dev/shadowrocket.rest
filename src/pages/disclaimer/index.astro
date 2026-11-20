@@ -1,0 +1,24 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/common/Breadcrumb.astro';
+---
+
+<BaseLayout
+  title="使用声明与免责说明"
+  description="shadowrocket.rest 技术知识库、测试数据时效性与合法合规使用声明。"
+>
+  <div class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+    <Breadcrumb items={[{ label: '使用声明' }]} />
+    <h1 class="text-3xl font-extrabold text-[var(--brand-navy)]">使用声明与免责说明</h1>
+    <div class="prose-editorial mt-6">
+      <p>
+        本站所载网络传输协议科普、客户端软件配置教程与第三方服务商资料整理均面向网络工程技术研究、跨境学术资料查阅与跨国企业远程协作知识参考。请用户在所在国家或地区法律法规允许范围内合理使用网络工具。
+      </p>
+      <h2>信息时效性与数据免责</h2>
+      <ul>
+        <li>服务商套餐价格、流量额度、优惠码及节点解锁状态可能随时间动态调整，本站已标注每项数据的核实日期与来源类型，但不对第三方商家的持续可用性或服务质量作出无限期担保。</li>
+        <li>本站不直接经营任何代理节点、不经手任何充值资金，购买前请优先选择短周期试错并自行评估风险。</li>
+      </ul>
+    </div>
+  </div>
+</BaseLayout>

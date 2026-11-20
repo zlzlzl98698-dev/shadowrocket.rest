@@ -1,0 +1,40 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/common/Breadcrumb.astro';
+import ArticleCard from '@/components/cards/ArticleCard.astro';
+import { getAllPublishedEntries } from '@/utils/content';
+
+export async function getStaticPaths() {
+  const all = await getAllPublishedEntries();
+  const catMap = new Map<string, typeof all>();
+  for (const entry of all) {
+    const cat = entry.data.category;
+    if (!catMap.has(cat)) catMap.set(cat, []);
+    catMap.get(cat)!.push(entry);
+  }
+  return Array.from(catMap.entries()).map(([category, entries]) => ({
+    params: { category },
+    props: { category, entries },
+  }));
+}
+
+const { category, entries } = Astro.props;
+const isThinArchive = entries.length < 3;
+---
+
+<BaseLayout
+  title={`分类：${category} — 专题文章归档`}
+  description={`查看小火箭（shadowrocket.rest）${category}分类下的全部已发布原创文章与实测报告。`}
+  noindexFollow={isThinArchive}
+>
+  <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <Breadcrumb items={[{ label: '深度专栏', href: '/articles/' }, { label: category }]} />
+    <h1 class="mb-2 text-3xl font-extrabold text-[var(--brand-navy)]">分类归档：{category}</h1>
+    <p class="mb-8 text-sm text-[var(--text-secondary)]">共 {entries.length} 篇文章。</p>
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {entries.map((entry) => (
+        <ArticleCard entry={entry} />
+      ))}
+    </div>
+  </div>
+</BaseLayout>

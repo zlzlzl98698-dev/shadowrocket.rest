@@ -1,0 +1,83 @@
+---
+import { PILLARS } from '@/data/navigation';
+
+const pathname = Astro.url.pathname;
+
+function isPillarActive(href: string): boolean {
+  return pathname === href || pathname.startsWith(href);
+}
+---
+
+<nav class="hidden lg:flex items-center gap-1" aria-label="主导航">
+  {PILLARS.map((pillar) => {
+    const active = isPillarActive(pillar.href);
+    return (
+      <div class="relative group nav-dropdown-wrapper">
+        <a
+          href={pillar.href}
+          class:list={[
+            'inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[15px] font-semibold transition-colors',
+            active
+              ? 'bg-[var(--brand-blue-soft)] text-[var(--brand-blue)]'
+              : 'text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--brand-blue)]',
+          ]}
+          aria-current={pathname === pillar.href ? 'page' : undefined}
+        >
+          <span>{pillar.name}</span>
+          <svg
+            class="h-4 w-4 text-[var(--text-secondary)] transition-transform duration-150 group-hover:rotate-180 group-focus-within:rotate-180"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </a>
+
+        <div
+          class="invisible opacity-0 translate-y-1 pointer-events-none group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto group-focus-within:visible group-focus-within:opacity-100 group-focus-within:translate-y-0 group-focus-within:pointer-events-auto absolute left-0 top-full z-50 w-80 pt-2 transition-all duration-150"
+        >
+          <div class="rounded-2xl border border-[var(--border-color)] bg-white p-3 shadow-xl">
+            <div class="mb-2 flex items-center justify-between border-b border-slate-100 px-2.5 pb-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+                {pillar.subtitle}
+              </span>
+              <a
+                href={pillar.href}
+                class="text-xs font-semibold text-[var(--brand-blue)] hover:underline"
+              >
+                专题首页 →
+              </a>
+            </div>
+            <ul class="space-y-0.5">
+              {pillar.items.map((item) => {
+                const subActive = pathname === item.href;
+                return (
+                  <li>
+                    <a
+                      href={item.href}
+                      class:list={[
+                        'block rounded-xl px-3 py-2 transition-colors',
+                        subActive
+                          ? 'bg-[var(--brand-blue-soft)] text-[var(--brand-blue)]'
+                          : 'hover:bg-[var(--bg-secondary)]',
+                      ]}
+                      aria-current={subActive ? 'page' : undefined}
+                    >
+                      <div class="text-sm font-semibold text-[var(--text-primary)]">{item.name}</div>
+                      <div class="line-clamp-1 text-xs text-[var(--text-secondary)]">{item.shortDesc}</div>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </div>
+      </div>
+    );
+  })}
+</nav>

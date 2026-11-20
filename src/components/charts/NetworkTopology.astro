@@ -1,0 +1,76 @@
+---
+export interface Props {
+  brandName: string;
+  lineType: string;
+  protocols: string[];
+  accentColor?: string;
+  isSchematic?: boolean;
+}
+
+const {
+  brandName,
+  lineType,
+  protocols,
+  accentColor = '#3B82F6',
+  isSchematic = true,
+} = Astro.props;
+---
+
+<section class="observatory-panel p-5 sm:p-7 my-6" aria-label={`${brandName} 网络传输架构示意图`}>
+  <div class="flex flex-col gap-2 border-b border-[var(--obs-border)] pb-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <div class="text-xs font-mono-num uppercase tracking-wider text-slate-400">
+        NETWORK PATH OBSERVATORY
+      </div>
+      <h3 class="mt-1 text-lg sm:text-xl font-bold text-white">
+        {brandName} · {lineType} 传输链路概念路径
+      </h3>
+    </div>
+    <span class="rounded-full border border-[var(--obs-border)] bg-[var(--obs-surface)] px-3 py-1 text-xs text-slate-300">
+      {isSchematic ? 'Conceptual Schematic · 架构示意（非单跳路由抓包）' : 'Verified Topology'}
+    </span>
+  </div>
+
+  <div class="mt-6 grid gap-3 lg:grid-cols-4 items-stretch">
+    <div class="rounded-xl border border-[var(--obs-border)] bg-[var(--obs-surface)] p-4 flex flex-col justify-between">
+      <div class="text-[11px] font-mono-num text-slate-400">STAGE 01 · CLIENT</div>
+      <div class="mt-1.5 font-bold text-white">用户本地终端</div>
+      <p class="mt-1.5 text-xs text-slate-300">
+        电脑 / 手机 / 软路由通过 {protocols.join(' / ')} 协议发起加密代理请求。
+      </p>
+    </div>
+
+    <div class="rounded-xl border border-[var(--obs-border)] bg-[var(--obs-surface)] p-4 flex flex-col justify-between">
+      <div class="text-[11px] font-mono-num text-sky-400">STAGE 02 · INGRESS</div>
+      <div class="mt-1.5 font-bold text-white">国内入口与调度</div>
+      <p class="mt-1.5 text-xs text-slate-300">
+        电信 / 联通 / 移动通过 BGP 或多线中转节点接入，降低公网直连丢包。
+      </p>
+    </div>
+
+    <div
+      class="rounded-xl border bg-[var(--obs-surface-alt)] p-4 flex flex-col justify-between"
+      style={`border-color: ${accentColor}`}
+    >
+      <div class="text-[11px] font-mono-num" style={`color: ${accentColor}`}>STAGE 03 · BACKBONE</div>
+      <div class="mt-1.5 font-bold text-white">{lineType} 跨境传输段</div>
+      <p class="mt-1.5 text-xs text-slate-300">
+        {lineType.includes('IEPL') || lineType.includes('IPLC')
+          ? '基于资料标注的专线跨境传输架构，减少国际出口拥堵对延迟与抖动的影响。'
+          : '经由服务商中转优化通道转发至海外落地机房，稳定性随负载动态变化。'}
+      </p>
+    </div>
+
+    <div class="rounded-xl border border-[var(--obs-border)] bg-[var(--obs-surface)] p-4 flex flex-col justify-between">
+      <div class="text-[11px] font-mono-num text-emerald-400">STAGE 04 · EGRESS</div>
+      <div class="mt-1.5 font-bold text-white">海外落地与目标服务</div>
+      <p class="mt-1.5 text-xs text-slate-300">
+        由海外出口 IP 访问海外文档、AI 工具与流媒体平台，可用性取决于出口 IP 类型与目标平台策略。
+      </p>
+    </div>
+  </div>
+
+  <p class="mt-4 text-xs text-slate-400">
+    说明：上图用于辅助理解「{lineType}」传输层级与排查定位阶段（如 Stage 01 属本地客户端配置，Stage 04 属出口 IP 解锁能力），具体物理机房 BGP 跳数需结合实时路由探测核实。
+  </p>
+</section>

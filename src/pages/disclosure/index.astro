@@ -1,0 +1,26 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/common/Breadcrumb.astro';
+import { SITE } from '@/data/site';
+---
+
+<BaseLayout
+  title="商业推广与联盟链接披露声明"
+  description="说明 shadowrocket.rest 的商业合作关系、推广链接属性（rel=nofollow sponsored noopener）以及独立评测分离原则。"
+>
+  <div class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8" data-pagefind-body>
+    <Breadcrumb items={[{ label: '商业推广披露' }]} />
+    <h1 class="text-3xl font-extrabold text-[var(--brand-navy)]">商业推广与联盟链接披露</h1>
+    <div class="prose-editorial mt-6">
+      <blockquote>
+        <p>{SITE.disclosure.full}</p>
+      </blockquote>
+      <h2>链接规范与佣金机制</h2>
+      <ul>
+        <li>全站所有服务商注册与优惠入口均统一由配置中心管理，并严格添加 <code>target="_blank" rel="nofollow sponsored noopener"</code> 属性。</li>
+        <li>通过推广链接注册或下单可能会为本站带来返佣收入，用于覆盖站点服务器与独立节点测试成本，<strong>不会增加用户任何额外支付费用</strong>。</li>
+        <li>本站明确标注优先合作推广品牌（如光速云），但同时保留对其测试短板（如部分节点 AI 解锁限制、历史流量口径差异）的客观披露，不将商业合作位置伪装成绝对实测第一。</li>
+      </ul>
+    </div>
+  </div>
+</BaseLayout>

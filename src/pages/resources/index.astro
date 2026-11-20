@@ -1,0 +1,21 @@
+---
+import CategoryLayout from '@/layouts/CategoryLayout.astro';
+import ArticleCard from '@/components/cards/ArticleCard.astro';
+import { getPillarByKey } from '@/data/navigation';
+import { getAllPublishedEntries } from '@/utils/content';
+
+const pillar = getPillarByKey('resources');
+const allEntries = await getAllPublishedEntries();
+const resEntries = allEntries.filter((e) => e.data.pillar === 'resources');
+---
+
+<CategoryLayout pillar={pillar}>
+  <section>
+    <h2 class="mb-5 text-2xl font-bold text-[var(--brand-navy)]">风险预警、节点检测与疑难百科</h2>
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {resEntries.map((entry) => (
+        <ArticleCard entry={entry} />
+      ))}
+    </div>
+  </section>
+</CategoryLayout>

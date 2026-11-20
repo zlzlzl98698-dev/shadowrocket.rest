@@ -1,0 +1,101 @@
+---
+import { PILLARS } from '@/data/navigation';
+
+const pathname = Astro.url.pathname;
+---
+
+<div
+  id="mobile-menu-panel"
+  class="fixed inset-0 z-50 hidden lg:hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-label="移动端导航菜单"
+>
+  <div id="mobile-menu-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"></div>
+
+  <div class="relative ml-auto flex h-full w-full max-w-sm flex-col overflow-y-auto bg-white shadow-2xl">
+    <div class="flex items-center justify-between border-b border-[var(--border-color)] px-5 py-4">
+      <a href="/" class="flex items-center gap-2.5 font-bold text-[var(--text-primary)]">
+        <img src="/logos/site-avatar.webp" alt="小火箭 Logo" class="h-8 w-8 rounded-xl border border-slate-200/80 object-cover" />
+        <span>小火箭</span>
+      </a>
+      <button
+        id="mobile-menu-close"
+        type="button"
+        aria-label="关闭菜单"
+        class="rounded-lg p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)] cursor-pointer"
+      >
+        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="p-4 border-b border-[var(--border-color)]">
+      <form action="/search/" method="get" class="flex items-center gap-2">
+        <input
+          type="search"
+          name="q"
+          placeholder="搜索文章、品牌或报错..."
+          class="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3.5 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
+        />
+        <button
+          type="submit"
+          class="shrink-0 rounded-xl bg-[var(--brand-blue)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--brand-blue-hover)] cursor-pointer"
+        >
+          搜索
+        </button>
+      </form>
+    </div>
+
+    <nav class="flex-1 space-y-2 p-4" aria-label="移动端栏目列表">
+      {PILLARS.map((pillar, index) => {
+        const active = pathname.startsWith(pillar.href);
+        return (
+          <details class="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)]/50" open={active || index === 0}>
+            <summary class="flex cursor-pointer list-none items-center justify-between px-4 py-3 font-semibold text-[var(--text-primary)]">
+              <span>{pillar.name}</span>
+              <span class="text-xs text-[var(--brand-blue)]">7 个专题</span>
+            </summary>
+            <div class="border-t border-[var(--border-color)] bg-white px-3 py-2 space-y-1">
+              <a
+                href={pillar.href}
+                class="block rounded-lg px-3 py-2 text-sm font-semibold text-[var(--brand-blue)] hover:bg-[var(--brand-blue-soft)]"
+              >
+                进入 {pillar.name} 频道首页 →
+              </a>
+              {pillar.items.map((item) => (
+                <a
+                  href={item.href}
+                  class:list={[
+                    'block rounded-lg px-3 py-1.5 text-sm',
+                    pathname === item.href
+                      ? 'bg-[var(--brand-blue-soft)] font-semibold text-[var(--brand-blue)]'
+                      : 'text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]',
+                  ]}
+                >
+                  {item.name}
+                </a>
+              ))}
+            </div>
+          </details>
+        );
+      })}
+
+      <div class="pt-3 border-t border-[var(--border-color)] grid grid-cols-2 gap-2">
+        <a
+          href="/brands/"
+          class="rounded-xl border border-[var(--border-color)] bg-white px-3 py-2.5 text-center text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--brand-blue)]"
+        >
+          品牌数据库 (31)
+        </a>
+        <a
+          href="/clients/"
+          class="rounded-xl border border-[var(--border-color)] bg-white px-3 py-2.5 text-center text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--brand-blue)]"
+        >
+          客户端大全
+        </a>
+      </div>
+    </nav>
+  </div>
+</div>

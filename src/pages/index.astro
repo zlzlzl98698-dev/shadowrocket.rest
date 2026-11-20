@@ -1,0 +1,470 @@
+---
+import HomeLayout from '@/layouts/HomeLayout.astro';
+import SearchBox from '@/components/search/SearchBox.astro';
+import CategoryCard from '@/components/cards/CategoryCard.astro';
+import FeaturedArticleCard from '@/components/cards/FeaturedArticleCard.astro';
+import ArticleCard from '@/components/cards/ArticleCard.astro';
+import CompactArticleCard from '@/components/cards/CompactArticleCard.astro';
+import BrandCard from '@/components/cards/BrandCard.astro';
+import PricingCard from '@/components/cards/PricingCard.astro';
+import ReviewCard from '@/components/cards/ReviewCard.astro';
+import ComparisonCard from '@/components/cards/ComparisonCard.astro';
+import GuideCard from '@/components/cards/GuideCard.astro';
+import FAQSection from '@/components/common/FAQSection.astro';
+import DisclosureBanner from '@/components/common/DisclosureBanner.astro';
+import { PILLARS } from '@/data/navigation';
+import { ALL_BRANDS, getBrandsBySlugs } from '@/data/brands';
+import { CLIENT_PLATFORMS } from '@/data/clients';
+import { SITE } from '@/data/site';
+import { getAllPublishedEntries, getEntryUrl } from '@/utils/content';
+
+const allEntries = await getAllPublishedEntries();
+
+const featuredEntries = allEntries.filter((e) => e.data.featured);
+const heroFeatured = featuredEntries[0] ?? allEntries[0];
+const mediumFeatured = featuredEntries.slice(1, 3);
+const smallFeatured = allEntries.filter((e) => e.id !== heroFeatured?.id && !mediumFeatured.some((m) => m.id === e.id)).slice(0, 3);
+
+const recommendedBrands = getBrandsBySlugs(['guangsuyun', 'muguang', 'feimao', 'weifeng', 'xingdaomeng', 'tiziyun']);
+const rankingBrands = getBrandsBySlugs(['guangsuyun', 'muguang', 'feimao', 'weifeng', 'xingdaomeng', 'yifan', 'weitu', 'ermao']);
+const dbPreviewBrands = ALL_BRANDS.slice(0, 6);
+
+const costEffectivePlans = [
+  { brandSlug: 'guangsuyun', brandName: '光速云', plan: ALL_BRANDS.find((b) => b.slug === 'guangsuyun')!.plans[1] },
+  { brandSlug: 'guangsuyun', brandName: '光速云', plan: ALL_BRANDS.find((b) => b.slug === 'guangsuyun')!.plans[0] },
+  { brandSlug: 'yifan', brandName: '一翻云', plan: ALL_BRANDS.find((b) => b.slug === 'yifan')!.plans[1] },
+  { brandSlug: 'feimao', brandName: '飞猫云', plan: ALL_BRANDS.find((b) => b.slug === 'feimao')!.plans[0] },
+];
+
+const deepReviewEntries = allEntries.filter((e) => e.kind === 'reviews' || e.data.category.includes('评测')).slice(0, 3);
+const comparisonEntries = allEntries.filter((e) => e.kind === 'comparisons').slice(0, 3);
+const vpnEntries = allEntries.filter((e) => e.data.pillar === 'vpn').slice(0, 3);
+const troubleshootingEntries = allEntries.filter(
+  (e) => e.data.topicSlug === 'clash-troubleshooting' || e.data.topicSlug === 'subscription-issues' || e.data.topicSlug === 'node-testing'
+).slice(0, 3);
+const riskIntelEntries = allEntries.filter(
+  (e) => e.data.pillar === 'resources' && (e.data.topicSlug === 'risk-intel' || e.data.topicSlug === 'runaway-warning' || e.data.topicSlug === 'faq')
+).slice(0, 3);
+const latestNineEntries = allEntries.slice(0, 9);
+
+const pillarCounts = {
+  airport: allEntries.filter((e) => e.data.pillar === 'airport').length,
+  vpn: allEntries.filter((e) => e.data.pillar === 'vpn').length,
+  clash: allEntries.filter((e) => e.data.pillar === 'clash').length,
+  resources: allEntries.filter((e) => e.data.pillar === 'resources').length,
+};
+
+const homeFaqs = [
+  {
+    question: '小火箭（shadowrocket.rest）的机场推荐和排行依据是什么？',
+    answer: '本站基于 31 家独立核实品牌档案、MiaoKo 实测截图与非晚高峰基准数据综合评估。商业合作推广品牌（如光速云）均明确标注合作关系，不掩盖测试短板或历史版本差异。',
+  },
+  {
+    question: '第一次接触代理工具，选 Clash Verge Rev 还是机场专属客户端？',
+    answer: '如果完全不想学订阅导入和分流规则，可选提供自研客户端的品牌（如飞猫云、梯子云、光速云）；若使用 iPhone Shadowrocket、桌面 Clash Verge Rev 或软路由，请务必选择明确开放第三方订阅的品牌。',
+  },
+  {
+    question: '为什么很多品牌写着“月均 6–8 元”，点开月付却要 20 元左右？',
+    answer: '低月均价几乎都是“年付小流量套餐 ÷ 12”的折算价格。本站所有价格表格均将年付折算价、单月付价格与一次性不限时流量包明确区分，建议首次测试优先单月付验证晚高峰。',
+  },
+  {
+    question: '为什么香港节点延迟最低，却常打不开网页版 ChatGPT 或 Gemini？',
+    answer: '根据 2026-08-19 实测，香港 IP 对 OpenAI 常限制为仅 App 访问、对 Gemini 普遍受限。日常使用 AI 工具建议在策略组中切换至新加坡、日本或美国节点。',
+  },
+];
+---
+
+<HomeLayout
+  title={`${SITE.name}（shadowrocket.rest）— 中文机场评测、品牌数据库与 Clash 客户端知识库`}
+  description={SITE.description}
+>
+  <!-- 2. Hero 主视觉 -->
+  <section class="border-b border-[var(--border-color)] bg-linear-to-b from-[var(--brand-blue-soft)]/80 via-[#F7FAFF] to-white">
+    <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+      <div class="grid gap-8 lg:grid-cols-12 items-center">
+        <div class="lg:col-span-7 space-y-5">
+          <div class="inline-flex flex-wrap items-center gap-2 rounded-full border border-blue-200 bg-white px-3.5 py-1 text-xs font-semibold text-[var(--brand-blue)] shadow-2xs">
+            <span>2026 中文网络工具评测媒体</span>
+            <span class="text-slate-300">|</span>
+            <span>31 家独立品牌档案 · 6 大平台客户端指南</span>
+          </div>
+
+          <h1 class="text-3xl sm:text-4xl lg:text-[2.65rem] font-extrabold tracking-tight leading-tight text-[var(--brand-navy)]">
+            以实测证据与透明数据，<br class="hidden sm:inline" />
+            选出稳定可用的机场与代理客户端
+          </h1>
+
+          <p class="max-w-2xl text-base sm:text-lg leading-relaxed text-[var(--text-secondary)]">
+            {SITE.tagline}。全站严格区分<strong class="text-[var(--text-primary)]">实测截图（Measured）</strong>与<strong class="text-[var(--text-primary)]">品牌资料（Vendor）</strong>，覆盖机场选型、Clash Verge Rev / Shadowrocket 配置与订阅排错。
+          </p>
+
+          <div class="max-w-xl">
+            <SearchBox />
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3 pt-1">
+            <a
+              href="/airport/"
+              class="inline-flex items-center gap-2 rounded-xl bg-[var(--brand-blue)] px-5 py-3 text-sm font-semibold text-white hover:bg-[var(--brand-blue-hover)] shadow-sm transition-colors"
+            >
+              进入机场推荐专题 →
+            </a>
+            <a
+              href="/brands/"
+              class="inline-flex items-center gap-2 rounded-xl border border-[var(--border-strong)] bg-white px-5 py-3 text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)] transition-colors"
+            >
+              检索 31 家品牌库
+            </a>
+            <a
+              href="/guides/clash-verge-rev-beginner-guide/"
+              class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-[var(--brand-blue)] hover:underline"
+            >
+              新手客户端入门 →
+            </a>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5">
+          {heroFeatured && (
+            <FeaturedArticleCard entry={heroFeatured} />
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. 四大专题快捷入口 -->
+  <section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8" aria-labelledby="pillars-heading">
+    <div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h2 id="pillars-heading" class="text-2xl sm:text-3xl font-bold text-[var(--brand-navy)]">四大核心内容频道</h2>
+        <p class="mt-1 text-sm text-[var(--text-secondary)]">按搜索需求划分 4 大一级频道与 28 个独立专题，结构清晰可直达。</p>
+      </div>
+      <a href="/clients/" class="text-sm font-semibold text-[var(--brand-blue)] hover:underline">
+        直达全平台客户端大全 →
+      </a>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {PILLARS.map((pillar) => (
+        <CategoryCard pillar={pillar} articleCount={pillarCounts[pillar.key]} />
+      ))}
+    </div>
+  </section>
+
+  <!-- 4. 编辑精选（杂志式布局：1 大 + 2 中 + 3 小） -->
+  <section class="border-y border-[var(--border-color)] bg-[var(--bg-secondary)] py-12" aria-labelledby="featured-heading">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="mb-6 flex items-end justify-between">
+        <div>
+          <h2 id="featured-heading" class="text-2xl sm:text-3xl font-bold text-[var(--brand-navy)]">编辑精选</h2>
+          <p class="mt-1 text-sm text-[var(--text-secondary)]">优先解决高价值选型难题与客户端实战配置。</p>
+        </div>
+        <a href="/articles/" class="text-sm font-semibold text-[var(--brand-blue)] hover:underline">查看全部文章 →</a>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-12">
+        {heroFeatured && (
+          <div class="lg:col-span-6">
+            <FeaturedArticleCard entry={heroFeatured} />
+          </div>
+        )}
+        <div class="lg:col-span-6 flex flex-col gap-5">
+          {mediumFeatured.map((entry) => (
+            <ArticleCard entry={entry} horizontal />
+          ))}
+        </div>
+      </div>
+
+      {smallFeatured.length > 0 && (
+        <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {smallFeatured.map((entry) => (
+            <CompactArticleCard entry={entry} />
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- 5. 机场推荐（品牌卡片 + 核心攻略混合） -->
+  <section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8" aria-labelledby="airport-rec-heading">
+    <div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h2 id="airport-rec-heading" class="text-2xl sm:text-3xl font-bold text-[var(--brand-navy)]">机场推荐（按场景与资料完整度）</h2>
+        <p class="mt-1 text-sm text-[var(--text-secondary)]">结合 IEPL/IPLC 专线架构、客户端自由度与实际核实记录挑选。</p>
+      </div>
+      <a href="/airport/tuijian/" class="text-sm font-semibold text-[var(--brand-blue)] hover:underline">
+        进入机场推荐专题 →
+      </a>
+    </div>
+
+    <div class="mb-6">
+      <DisclosureBanner compact />
+    </div>
+
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {recommendedBrands.map((brand) => (
+        <BrandCard brand={brand} />
+      ))}
+    </div>
+  </section>
+
+  <!-- 6. 机场排行（清晰榜单 + 排名依据标注） -->
+  <section class="border-y border-[var(--border-color)] bg-[var(--bg-secondary)] py-12" aria-labelledby="ranking-heading">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 id="ranking-heading" class="text-2xl sm:text-3xl font-bold text-[var(--brand-navy)]">2026 机场参考榜单与评估依据</h2>
+          <p class="mt-1 text-sm text-[var(--text-secondary)]">
+            依据运营年限、实测透明度、协议支持与套餐灵活性整理，明确标注商业推广合作身份。
+          </p>
+        </div>
+        <a href="/articles/airport-ranking-methodology-2026/" class="text-sm font-semibold text-[var(--brand-blue)] hover:underline">
+          阅读完整排名评估方法论 →
+        </a>
+      </div>
+
+      <div class="overflow-x-auto rounded-2xl border border-[var(--border-color)] bg-white shadow-xs">
+        <table class="w-full text-left text-sm">
+          <thead class="border-b border-[var(--border-color)] bg-slate-50 text-xs text-[var(--text-secondary)]">
+            <tr>
+              <th class="px-4 py-3.5 font-semibold">品牌</th>
+              <th class="px-4 py-3.5 font-semibold">商业关系与数据级别</th>
+              <th class="px-4 py-3.5 font-semibold">线路 / 协议</th>
+              <th class="px-4 py-3.5 font-semibold">参考起步价</th>
+              <th class="px-4 py-3.5 font-semibold">客户端模式</th>
+              <th class="px-4 py-3.5 font-semibold">详情入口</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            {rankingBrands.map((b, idx) => (
+              <tr class="hover:bg-slate-50/70">
+                <td class="px-4 py-3.5 font-bold text-[var(--text-primary)]">
+                  <span class="mr-2 font-mono-num text-xs text-[var(--text-muted)]">#{idx + 1}</span>
+                  <a href={`/brands/${b.slug}/`} class="hover:text-[var(--brand-blue)]">{b.name}</a>
+                </td>
+                <td class="px-4 py-3.5 text-xs">
+                  {b.isPromotedPartner ? (
+                    <span class="rounded-full bg-amber-50 border border-amber-200 px-2.5 py-0.5 font-semibold text-amber-800">
+                      合作推广 + 含实测截图
+                    </span>
+                  ) : (
+                    <span class="rounded-full bg-blue-50 border border-blue-200 px-2.5 py-0.5 font-medium text-blue-700">
+                      非合作收录 · {b.speedReport.hasData ? '含基准数据' : '无测速'}
+                    </span>
+                  )}
+                </td>
+                <td class="px-4 py-3.5 text-xs text-[var(--text-secondary)]">
+                  {b.lineType} · {b.protocols.slice(0, 2).join('/')}
+                </td>
+                <td class="px-4 py-3.5 font-mono-num text-xs font-semibold text-[var(--brand-navy)]">
+                  {b.startingPriceLabel}
+                </td>
+                <td class="px-4 py-3.5 text-xs text-[var(--text-secondary)]">
+                  {b.clientMode === 'proprietary_only' ? '仅专属客户端' : b.clientMode === 'proprietary_and_third_party' ? '自研 + 第三方' : '第三方订阅'}
+                </td>
+                <td class="px-4 py-3.5 text-xs">
+                  <a href={`/brands/${b.slug}/`} class="font-semibold text-[var(--brand-blue)] hover:underline">
+                    查看档案 →
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. 性价比机场（价格对比卡片 + 专题） -->
+  <section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8" aria-labelledby="cost-effective-heading">
+    <div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h2 id="cost-effective-heading" class="text-2xl sm:text-3xl font-bold text-[var(--brand-navy)]">性价比套餐与不限时流量包</h2>
+        <p class="mt-1 text-sm text-[var(--text-secondary)]">严格标明计费周期与年付折算均价，避免把年付平均价误当作月付。</p>
+      </div>
+      <a href="/articles/cost-effective-airport-pricing-analysis/" class="text-sm font-semibold text-[var(--brand-blue)] hover:underline">
+        查看性价比深度拆解 →
+      </a>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {costEffectivePlans.map((item) => (
+        <PricingCard brandName={item.brandName} brandSlug={item.brandSlug} plan={item.plan} />
+      ))}
+    </div>
+  </section>
+
+  <!-- 8. 品牌数据库入口 -->
+  <section class="border-y border-[var(--border-color)] bg-[var(--bg-secondary)] py-12" aria-labelledby="db-heading">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 id="db-heading" class="text-2xl sm:text-3xl font-bold text-[var(--brand-navy)]">机场品牌数据库（已审计 31 家独立品牌）</h2>
+          <p class="mt-1 text-sm text-[var(--text-secondary)]">
+            支持按线路（IEPL/IPLC/BGP）、价格区间、客户端兼容、AI/流媒体与不限时流量包实时筛选。
+          </p>
+        </div>
+        <a
+          href="/brands/"
+          class="inline-flex shrink-0 items-center justify-center rounded-xl bg-[var(--brand-blue)] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-blue-hover)] transition-colors"
+        >
+          打开完整品牌筛选库 →
+        </a>
+      </div>
+
+      <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {dbPreviewBrands.map((brand) => (
+          <BrandCard brand={brand} compact />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. 深度品牌评测 & 10. 横向对比 -->
+  <section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 space-y-12">
+    <div>
+      <div class="mb-6 flex items-end justify-between">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-bold text-[var(--brand-navy)]">深度品牌评测</h2>
+          <p class="mt-1 text-sm text-[var(--text-secondary)]">附实测截图、历史口径审计与解锁状态矩阵。</p>
+        </div>
+        <a href="/reviews/" class="text-sm font-semibold text-[var(--brand-blue)] hover:underline">全部评测 →</a>
+      </div>
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {deepReviewEntries.map((entry) => (
+          <ReviewCard entry={entry} />
+        ))}
+      </div>
+    </div>
+
+    <div>
+      <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-bold text-[var(--brand-navy)]">横向对比分析</h2>
+          <p class="mt-1 text-sm text-[var(--text-secondary)]">同价位与同类客户端同台对比，看清真正差异。</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-4">
+          <a href="/compare/" class="rounded-lg bg-[var(--brand-blue-soft)] px-3.5 py-1.5 text-sm font-semibold text-[var(--brand-blue)] hover:bg-blue-100 transition-colors">
+            打开交互式品牌对比器 →
+          </a>
+          <a href="/comparisons/" class="text-sm font-semibold text-[var(--brand-blue)] hover:underline">全部对比 →</a>
+        </div>
+      </div>
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {comparisonEntries.map((entry) => (
+          <ComparisonCard entry={entry} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. VPN 与加速器专题 & 12. Clash 多平台客户端入口 -->
+  <section class="border-y border-[var(--border-color)] bg-[var(--bg-secondary)] py-12">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
+      <div>
+        <div class="mb-6 flex items-end justify-between">
+          <div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-[var(--brand-navy)]">VPN 与加速器专题</h2>
+            <p class="mt-1 text-sm text-[var(--text-secondary)]">传统 VPN 与专线代理差异、软件评测与 AI 加速策略。</p>
+          </div>
+          <a href="/vpn/" class="text-sm font-semibold text-[var(--brand-blue)] hover:underline">进入 VPN 频道 →</a>
+        </div>
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {vpnEntries.map((entry) => (
+            <ArticleCard entry={entry} />
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div class="mb-6 flex items-end justify-between">
+          <div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-[var(--brand-navy)]">全平台代理客户端教程（6 大系统）</h2>
+            <p class="mt-1 text-sm text-[var(--text-secondary)]">按 Windows、Android、iOS、macOS、Linux 与 OpenWrt 组织。</p>
+          </div>
+          <a href="/clients/" class="text-sm font-semibold text-[var(--brand-blue)] hover:underline">查看客户端大全 →</a>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {CLIENT_PLATFORMS.map((group) => (
+            <a href={`/clients/#${group.id}`} class="editorial-card p-5 flex flex-col justify-between group">
+              <div>
+                <div class="mb-2 flex items-center justify-between">
+                  <span class="rounded-lg bg-[var(--brand-blue-soft)] px-2.5 py-1 text-xs font-bold text-[var(--brand-blue)]">
+                    {group.shortName}
+                  </span>
+                  <span class="text-xs text-[var(--text-muted)]">{group.clients.length} 款客户端</span>
+                </div>
+                <h3 class="text-base font-bold text-[var(--text-primary)] group-hover:text-[var(--brand-blue)]">
+                  {group.platform}
+                </h3>
+                <p class="mt-1.5 text-xs leading-relaxed text-[var(--text-secondary)] line-clamp-2">
+                  {group.summary}
+                </p>
+              </div>
+              <div class="mt-3 text-xs font-medium text-[var(--text-primary)]">
+                主流：{group.clients.slice(0, 3).map((c) => c.name).join(' · ')}
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13. 网络问题解决 & 14. 风险与情报 -->
+  <section class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 space-y-12">
+    <div>
+      <div class="mb-6 flex items-end justify-between">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-bold text-[var(--brand-navy)]">网络故障与订阅排错</h2>
+          <p class="mt-1 text-sm text-[var(--text-secondary)]">解决 Timeout 超时、订阅拉取失败、DNS 污染与系统代理残留。</p>
+        </div>
+        <a href="/clash/clash-troubleshooting/" class="text-sm font-semibold text-[var(--brand-blue)] hover:underline">更多排错教程 →</a>
+      </div>
+      <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {troubleshootingEntries.map((entry) => (
+          <GuideCard entry={entry} />
+        ))}
+      </div>
+    </div>
+
+    <div>
+      <div class="mb-6 flex items-end justify-between">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-bold text-[var(--brand-navy)]">风险预警与品牌情报</h2>
+          <p class="mt-1 text-sm text-[var(--text-secondary)]">如实记录重复品牌去重、链接格式异常与跑路风险防范。</p>
+        </div>
+        <a href="/resources/risk-intel/" class="text-sm font-semibold text-[var(--brand-blue)] hover:underline">查看情报专栏 →</a>
+      </div>
+      <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {riskIntelEntries.map((entry) => (
+          <CompactArticleCard entry={entry} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 15. 最新文章（默认展示 9 篇） -->
+  <section class="border-t border-[var(--border-color)] bg-[var(--bg-secondary)] py-12" aria-labelledby="latest-heading">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="mb-6 flex items-end justify-between">
+        <div>
+          <h2 id="latest-heading" class="text-2xl sm:text-3xl font-bold text-[var(--brand-navy)]">最新原创内容（{allEntries.length} 篇已发布）</h2>
+          <p class="mt-1 text-sm text-[var(--text-secondary)]">直接读取内容集合动态生成，每篇均包含清晰结论、来源与 FAQ。</p>
+        </div>
+        <a href="/articles/" class="text-sm font-semibold text-[var(--brand-blue)] hover:underline">浏览全部分类文章 →</a>
+      </div>
+
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {latestNineEntries.map((entry) => (
+          <ArticleCard entry={entry} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 16. 首页 FAQ -->
+  <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <FAQSection items={homeFaqs} title="小火箭（shadowrocket.rest）常见使用与选型 FAQ" />
+  </section>
+</HomeLayout>

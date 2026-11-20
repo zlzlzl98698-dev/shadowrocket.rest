@@ -1,0 +1,31 @@
+---
+import type { SubTopic } from '@/data/navigation';
+
+export interface Props {
+  topic: SubTopic;
+  clusterCount?: number;
+}
+
+const { topic, clusterCount = 2 } = Astro.props;
+---
+
+<a href={topic.href} class="editorial-card group flex flex-col justify-between p-5">
+  <div>
+    <div class="mb-2.5 flex items-center justify-between gap-2 text-xs">
+      <span class="rounded-md bg-[var(--brand-blue-soft)] px-2.5 py-0.5 font-semibold text-[var(--brand-blue)]">
+        {topic.primaryKeyword}
+      </span>
+      <span class="text-[var(--text-muted)]">{clusterCount} 个集群</span>
+    </div>
+    <h3 class="mb-2 text-base font-bold text-[var(--text-primary)] group-hover:text-[var(--brand-blue)] transition-colors">
+      {topic.name}
+    </h3>
+    <p class="text-sm leading-relaxed text-[var(--text-secondary)]">
+      {topic.shortDesc}
+    </p>
+  </div>
+  <div class="mt-4 flex items-center justify-between text-xs font-semibold text-[var(--brand-blue)]">
+    <span>查看专题</span>
+    <span class="transition-transform group-hover:translate-x-1">→</span>
+  </div>
+</a>

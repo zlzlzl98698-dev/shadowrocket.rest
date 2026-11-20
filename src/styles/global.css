@@ -1,0 +1,263 @@
+@import "tailwindcss";
+
+:root {
+  /* Core Editorial Blog Palette */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F7F9FC;
+  --bg-tertiary: #EFF4FA;
+  --text-primary: #172033;
+  --text-secondary: #64748B;
+  --text-muted: #94A3B8;
+  --brand-blue: #2563EB;
+  --brand-blue-hover: #1D4ED8;
+  --brand-blue-soft: #EFF6FF;
+  --brand-navy: #0F172A;
+  --border-color: #E5EAF1;
+  --border-strong: #CBD5E1;
+
+  /* Semantic Status Colors */
+  --status-verified: #059669;
+  --status-verified-bg: #ECFDF5;
+  --status-vendor: #D97706;
+  --status-vendor-bg: #FFFBEB;
+  --status-warning: #DC2626;
+  --status-warning-bg: #FEF2F2;
+
+  /* Dark Network Observatory Palette (For Technical Charts Only) */
+  --obs-bg: #0B1220;
+  --obs-surface: #111A2E;
+  --obs-surface-alt: #16223B;
+  --obs-border: #233252;
+  --obs-text: #E2E8F0;
+  --obs-muted: #94A3B8;
+  --obs-green: #10B981;
+  --obs-amber: #F59E0B;
+  --obs-red: #EF4444;
+  --obs-blue: #3B82F6;
+
+  /* Typography & Radii */
+  --font-sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --radius-card: 16px;
+  --radius-sm: 10px;
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.04);
+  --shadow-card-hover: 0 4px 12px rgba(37, 99, 235, 0.08), 0 16px 32px rgba(15, 23, 42, 0.08);
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+    overflow-x: hidden;
+  }
+
+  @media (min-width: 768px) {
+    body {
+      font-size: 17px;
+    }
+  }
+
+  h1, h2, h3, h4 {
+    color: var(--text-primary);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.35;
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--brand-blue);
+    outline-offset: 2px;
+  }
+}
+
+/* Editorial Card Interactions */
+.editorial-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.editorial-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: #CBD5E1;
+}
+
+/* Prose Article Formatting */
+.prose-editorial {
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.85;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+@media (min-width: 768px) {
+  .prose-editorial {
+    font-size: 1.0625rem;
+  }
+}
+
+.prose-editorial h2 {
+  font-size: 1.5rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--brand-navy);
+  scroll-margin-top: 5.5rem;
+}
+
+.prose-editorial h3 {
+  font-size: 1.2rem;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+  scroll-margin-top: 5.5rem;
+}
+
+.prose-editorial p {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+  color: #273248;
+}
+
+.prose-editorial ul,
+.prose-editorial ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+.prose-editorial ul {
+  list-style-type: disc;
+}
+
+.prose-editorial ol {
+  list-style-type: decimal;
+}
+
+.prose-editorial li {
+  margin-bottom: 0.5rem;
+  color: #273248;
+}
+
+.prose-editorial a {
+  color: var(--brand-blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  word-break: break-word;
+}
+
+.prose-editorial a:hover {
+  color: var(--brand-blue-hover);
+}
+
+.prose-editorial blockquote {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  background: var(--brand-blue-soft);
+  border-left: 4px solid var(--brand-blue);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--text-primary);
+}
+
+.prose-editorial blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.prose-editorial pre {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  max-width: 100%;
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+
+.prose-editorial code:not(pre code) {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  padding: 0.15rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.875em;
+  font-family: var(--font-mono);
+  color: #1E40AF;
+  word-break: break-word;
+}
+
+.prose-editorial table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.925rem;
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.prose-editorial th,
+.prose-editorial td {
+  border: 1px solid var(--border-color);
+  padding: 0.65rem 0.9rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.prose-editorial th {
+  background: var(--bg-secondary);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.prose-editorial img {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  max-width: 100%;
+  height: auto;
+  margin: 1.5rem 0;
+}
+
+/* Dark Network Observatory Container */
+.observatory-panel {
+  background: var(--obs-bg);
+  color: var(--obs-text);
+  border: 1px solid var(--obs-border);
+  border-radius: var(--radius-card);
+  background-image:
+    linear-gradient(to right, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.font-mono-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}

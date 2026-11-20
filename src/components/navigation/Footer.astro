@@ -1,0 +1,71 @@
+---
+import { SITE } from '@/data/site';
+import { PILLARS } from '@/data/navigation';
+---
+
+<footer class="mt-16 border-t border-[var(--border-color)] bg-[var(--bg-secondary)]">
+  <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-6">
+      <div class="lg:col-span-2 space-y-4">
+        <a href="/" class="inline-flex items-center gap-2.5">
+          <img src="/logos/site-avatar.webp" alt={`${SITE.name} 标志`} class="h-9 w-9 rounded-xl border border-slate-200/80 object-cover shadow-2xs" />
+          <div>
+            <div class="text-base font-bold text-[var(--text-primary)]">{SITE.name}</div>
+            <div class="text-xs text-[var(--text-secondary)]">{SITE.domain}</div>
+          </div>
+        </a>
+        <p class="text-sm leading-relaxed text-[var(--text-secondary)]">
+          {SITE.description}
+        </p>
+        <p class="text-xs leading-relaxed text-[var(--text-secondary)] border-l-2 border-amber-400 pl-3">
+          {SITE.disclosure.short}
+        </p>
+        <div class="text-xs text-[var(--text-secondary)]">
+          编辑联系：<a href={`mailto:${SITE.contact.email}`} class="text-[var(--brand-blue)] hover:underline">{SITE.contact.email}</a>
+        </div>
+      </div>
+
+      {PILLARS.map((pillar) => (
+        <div>
+          <h3 class="mb-3 text-sm font-bold text-[var(--text-primary)]">
+            <a href={pillar.href} class="hover:text-[var(--brand-blue)]">{pillar.name}</a>
+          </h3>
+          <ul class="space-y-2 text-sm text-[var(--text-secondary)]">
+            {pillar.items.map((item) => (
+              <li>
+                <a href={item.href} class="hover:text-[var(--brand-blue)] transition-colors">
+                  {item.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+
+    <div class="mt-10 flex flex-col gap-4 border-t border-[var(--border-color)] pt-8 text-xs text-[var(--text-secondary)] md:flex-row md:items-center md:justify-between">
+      <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+        <a href="/brands/" class="font-semibold text-[var(--text-primary)] hover:text-[var(--brand-blue)]">品牌数据库 (31家)</a>
+        <a href="/compare/" class="font-semibold text-[var(--brand-blue)] hover:underline">品牌并排对比器</a>
+        <a href="/clients/" class="hover:text-[var(--brand-blue)]">代理客户端大全</a>
+        <a href="/articles/" class="hover:text-[var(--brand-blue)]">全部专栏文章</a>
+        <a href="/reviews/" class="hover:text-[var(--brand-blue)]">深度评测</a>
+        <a href="/comparisons/" class="hover:text-[var(--brand-blue)]">横向对比</a>
+        <a href="/guides/" class="hover:text-[var(--brand-blue)]">教程中心</a>
+        <a href="/search/" class="hover:text-[var(--brand-blue)]">站内搜索</a>
+        <a href="/rss.xml" class="hover:text-[var(--brand-blue)]">RSS 订阅</a>
+      </div>
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <a href="/about/" class="hover:text-[var(--brand-blue)]">关于我们</a>
+        <a href="/disclosure/" class="hover:text-[var(--brand-blue)]">商业推广披露</a>
+        <a href="/privacy/" class="hover:text-[var(--brand-blue)]">隐私政策</a>
+        <a href="/disclaimer/" class="hover:text-[var(--brand-blue)]">使用声明</a>
+        <a href="/sitemap-index.xml" class="hover:text-[var(--brand-blue)]">Sitemap</a>
+      </div>
+    </div>
+
+    <div class="mt-4 text-xs text-[var(--text-muted)]">
+      {SITE.copyright} · 数据核实标准：{SITE.editorialPolicy.lastAuditDate}
+    </div>
+  </div>
+</footer>

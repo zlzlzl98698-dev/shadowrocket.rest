@@ -1,0 +1,43 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/common/Breadcrumb.astro';
+import GuideCard from '@/components/cards/GuideCard.astro';
+import { getAllPublishedEntries } from '@/utils/content';
+import { SITE } from '@/data/site';
+
+const all = await getAllPublishedEntries();
+const guides = all.filter((e) => e.kind === 'guides');
+const collectionSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: '代理客户端配置、测速解读与故障排查教程中心',
+  url: new URL('/guides/', SITE.url).toString(),
+  inLanguage: 'zh-CN',
+};
+---
+
+<BaseLayout
+  title="代理客户端配置、测速解读与故障排查教程中心"
+  description="覆盖 Clash Verge Rev、Shadowrocket 小火箭、Android 客户端、OpenWrt 软路由、MiaoKo 测速解读与订阅/节点超时修复全流程教程。"
+  schemas={[collectionSchema]}
+>
+  <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <Breadcrumb items={[{ label: '实操教程中心' }]} />
+    <div class="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h1 class="text-3xl font-extrabold text-[var(--brand-navy)]">实操教程与故障排查中心（{guides.length} 篇）</h1>
+        <p class="mt-2 text-base text-[var(--text-secondary)]">
+          从软件下载校验、订阅导入到常见报错定位的标准化步骤手册。
+        </p>
+      </div>
+      <a href="/clients/" class="text-sm font-semibold text-[var(--brand-blue)] hover:underline">
+        查看 6 大平台客户端清单 →
+      </a>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {guides.map((entry) => (
+        <GuideCard entry={entry} />
+      ))}
+    </div>
+  </div>
+</BaseLayout>

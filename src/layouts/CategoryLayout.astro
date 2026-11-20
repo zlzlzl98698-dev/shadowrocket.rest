@@ -1,0 +1,72 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumb from '@/components/common/Breadcrumb.astro';
+import TopicCard from '@/components/cards/TopicCard.astro';
+import type { PillarNav } from '@/data/navigation';
+import { getClustersByTopic } from '@/data/clusters';
+import { SITE } from '@/data/site';
+
+export interface Props {
+  pillar: PillarNav;
+  title?: string;
+  description?: string;
+}
+
+const { pillar, title, description } = Astro.props;
+const pageUrl = new URL(pillar.href, SITE.url).toString();
+const collectionSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: title ?? `${pillar.name} — 专题频道与精选评测`,
+  description: description ?? pillar.description,
+  url: pageUrl,
+  inLanguage: 'zh-CN',
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: pillar.items.length,
+    itemListElement: pillar.items.map((item, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      name: item.name,
+      url: new URL(item.href, SITE.url).toString(),
+    })),
+  },
+};
+---
+
+<BaseLayout
+  title={title ?? `${pillar.name} — 专题频道与精选评测`}
+  description={description ?? pillar.description}
+  schemas={[collectionSchema]}
+>
+  <section class="border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
+    <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <Breadcrumb items={[{ label: pillar.name }]} />
+
+      <div class="max-w-3xl">
+        <span class="inline-block rounded-full bg-[var(--brand-blue-soft)] px-3 py-1 text-xs font-semibold text-[var(--brand-blue)]">
+          {pillar.badge} · 主关键词：{pillar.primaryKeyword}
+        </span>
+        <h1 class="mt-3 text-3xl sm:text-4xl font-extrabold text-[var(--brand-navy)]">
+          {pillar.name}
+        </h1>
+        <p class="mt-3 text-base sm:text-lg leading-relaxed text-[var(--text-secondary)]">
+          {pillar.description}
+        </p>
+      </div>
+
+      <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {pillar.items.map((topic) => (
+          <TopicCard
+            topic={topic}
+            clusterCount={getClustersByTopic(pillar.key, topic.slug).length}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 space-y-12" data-pagefind-body>
+    <slot />
+  </div>
+</BaseLayout>

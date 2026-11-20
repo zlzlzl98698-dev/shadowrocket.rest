@@ -1,0 +1,119 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumb from '@/components/common/Breadcrumb.astro';
+import type { PillarNav, SubTopic } from '@/data/navigation';
+import type { ArticleCluster } from '@/data/clusters';
+import { getPillarBreadcrumbLabel } from '@/utils/seo';
+import { SITE } from '@/data/site';
+
+export interface Props {
+  pillar: PillarNav;
+  topic: SubTopic;
+  clusters: ArticleCluster[];
+}
+
+const { pillar, topic, clusters } = Astro.props;
+const pillarBreadcrumbLabel = getPillarBreadcrumbLabel(pillar.key, pillar.name, topic.name);
+const topicCollectionSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `${topic.name} — ${pillar.name}专题`,
+  description: `${topic.shortDesc} ${topic.intro}`,
+  url: new URL(topic.href, SITE.url).toString(),
+  inLanguage: 'zh-CN',
+  isPartOf: {
+    '@type': 'CollectionPage',
+    name: pillar.name,
+    url: new URL(pillar.href, SITE.url).toString(),
+  },
+};
+---
+
+<BaseLayout
+  title={`${topic.name} — ${pillar.name}专题`}
+  description={`${topic.shortDesc} ${topic.intro}`}
+  schemas={[topicCollectionSchema]}
+>
+  <section class="border-b border-[var(--border-color)] bg-linear-to-b from-[var(--brand-blue-soft)]/70 to-white">
+    <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <Breadcrumb items={[{ label: pillarBreadcrumbLabel, href: pillar.href }, { label: topic.name }]} />
+
+      <div class="grid gap-8 lg:grid-cols-12 items-start">
+        <div class="lg:col-span-8">
+          <div class="mb-3 flex flex-wrap items-center gap-2 text-xs">
+            <span class="rounded-full bg-[var(--brand-blue)] px-3 py-1 font-semibold text-white">
+              {pillar.name}
+            </span>
+            <span class="rounded-full bg-white border border-[var(--border-color)] px-3 py-1 font-medium text-[var(--text-secondary)]">
+              主关键词：{topic.primaryKeyword}
+            </span>
+            <span class="rounded-full bg-white border border-[var(--border-color)] px-3 py-1 font-medium text-[var(--text-secondary)]">
+              搜索意图：{topic.searchIntent}
+            </span>
+          </div>
+
+          <h1 class="text-3xl sm:text-4xl font-extrabold text-[var(--brand-navy)]">
+            {topic.name}
+          </h1>
+
+          <p class="mt-4 text-base sm:text-lg leading-relaxed text-[var(--text-primary)]">
+            {topic.intro}
+          </p>
+
+          <div class="mt-4 text-sm text-[var(--text-secondary)]">
+            <strong>适用人群：</strong>{topic.targetAudience}
+          </div>
+        </div>
+
+        <aside class="lg:col-span-4 rounded-2xl border border-[var(--border-color)] bg-white p-5 shadow-xs">
+          <h2 class="text-sm font-bold text-[var(--text-primary)]">同频道其他专题</h2>
+          <ul class="mt-3 space-y-1.5 text-sm">
+            {pillar.items.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class:list={[
+                    'block rounded-lg px-3 py-1.5 transition-colors',
+                    item.slug === topic.slug
+                      ? 'bg-[var(--brand-blue-soft)] font-semibold text-[var(--brand-blue)]'
+                      : 'text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]',
+                  ]}
+                >
+                  {item.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </aside>
+      </div>
+
+      {clusters.length > 0 && (
+        <div class="mt-8 grid gap-4 md:grid-cols-2">
+          {clusters.map((cluster) => (
+            <div class="rounded-2xl border border-[var(--border-color)] bg-white p-5 shadow-xs">
+              <div class="flex items-center justify-between gap-2 text-xs mb-2">
+                <span class="font-semibold text-[var(--brand-blue)]">三级内容集群 · {cluster.targetKeyword}</span>
+                <a href={cluster.coreArticleUrl} class="font-semibold text-[var(--brand-blue)] hover:underline">
+                  核心文章 →
+                </a>
+              </div>
+              <h2 class="text-base font-bold text-[var(--text-primary)]">{cluster.name}</h2>
+              <ul class="mt-2.5 space-y-1 text-xs text-[var(--text-secondary)] list-disc pl-4">
+                {cluster.userQuestions.map((q) => (
+                  <li>{q}</li>
+                ))}
+                {cluster.geoQuestions.map((q) => (
+                  <li>{q}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+
+  <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 space-y-12" data-pagefind-body>
+    <slot />
+  </div>
+</BaseLayout>

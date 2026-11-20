@@ -1,0 +1,80 @@
+---
+import type { BrandPlan } from '@/data/brands';
+
+export interface Props {
+  brandName: string;
+  plans: BrandPlan[];
+  discrepancyNotes?: string[];
+}
+
+const { brandName, plans, discrepancyNotes = [] } = Astro.props;
+---
+
+<div class="space-y-4">
+  {plans.length > 0 ? (
+    <div class="overflow-x-auto rounded-2xl border border-[var(--border-color)] bg-white shadow-xs">
+      <table class="w-full text-left text-sm">
+        <thead class="border-b border-[var(--border-color)] bg-[var(--bg-secondary)] text-xs uppercase text-[var(--text-secondary)]">
+          <tr>
+            <th class="px-4 py-3.5 font-semibold">套餐名称</th>
+            <th class="px-4 py-3.5 font-semibold">计费周期</th>
+            <th class="px-4 py-3.5 font-semibold">周期价格</th>
+            <th class="px-4 py-3.5 font-semibold">流量额度</th>
+            <th class="px-4 py-3.5 font-semibold">重置规则</th>
+            <th class="px-4 py-3.5 font-semibold">备注与核实状态</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {plans.map((plan) => (
+            <tr class="hover:bg-slate-50/70 transition-colors">
+              <td class="px-4 py-3.5 font-semibold text-[var(--text-primary)]">{plan.name}</td>
+              <td class="px-4 py-3.5">
+                <span class="rounded-md bg-[var(--bg-secondary)] px-2 py-0.5 text-xs font-medium text-[var(--text-secondary)]">
+                  {plan.billingCycle}
+                </span>
+              </td>
+              <td class="px-4 py-3.5 font-mono-num font-bold text-[var(--brand-navy)]">
+                ¥{plan.priceCny}
+                {plan.monthlyEquivalentCny && plan.billingCycle !== '月付' && (
+                  <span class="block text-[11px] font-normal text-[var(--brand-blue)]">
+                    折合 ¥{plan.monthlyEquivalentCny}/月
+                  </span>
+                )}
+              </td>
+              <td class="px-4 py-3.5 font-medium text-[var(--text-primary)]">{plan.trafficDisplay}</td>
+              <td class="px-4 py-3.5 text-xs text-[var(--text-secondary)]">{plan.trafficReset}</td>
+              <td class="px-4 py-3.5 text-xs text-[var(--text-secondary)]">
+                <div>{plan.discountNote ?? '常规套餐'}</div>
+                <span
+                  class:list={[
+                    'mt-1 inline-block rounded px-1.5 py-0.5 text-[10px] font-medium',
+                    plan.dataStatus === 'historical'
+                      ? 'bg-amber-50 text-amber-800'
+                      : 'bg-blue-50 text-blue-700',
+                  ]}
+                >
+                  {plan.dataStatus === 'historical' ? '历史存档价（以官网现价为准）' : '品牌资料记录'}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  ) : (
+    <div class="rounded-2xl border border-dashed border-[var(--border-strong)] bg-[var(--bg-secondary)] p-6 text-sm text-[var(--text-secondary)]">
+      <strong>待核实：</strong>现有资料不足以列出 {brandName} 的完整套餐价格表（拒绝使用示例价格或历史起价替代当前全量价目表）。下单前请以官网结算页面实际展示为准。
+    </div>
+  )}
+
+  {discrepancyNotes.length > 0 && (
+    <div class="rounded-xl border border-amber-200 bg-amber-50/70 p-4 text-xs leading-relaxed text-amber-950">
+      <strong class="font-semibold">资料版本差异审计记录：</strong>
+      <ul class="mt-1 list-disc pl-4 space-y-1">
+        {discrepancyNotes.map((note) => (
+          <li>{note}</li>
+        ))}
+      </ul>
+    </div>
+  )}
+</div>

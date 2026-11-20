@@ -1,0 +1,102 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/common/Breadcrumb.astro';
+import ComparisonCard from '@/components/cards/ComparisonCard.astro';
+import DisclosureBanner from '@/components/common/DisclosureBanner.astro';
+import { getAllPublishedEntries } from '@/utils/content';
+import { SITE } from '@/data/site';
+
+const all = await getAllPublishedEntries();
+const comparisons = all.filter((e) => e.kind === 'comparisons');
+const collectionSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: '机场品牌与代理客户端横向对比分析',
+  url: new URL('/comparisons/', SITE.url).toString(),
+  inLanguage: 'zh-CN',
+};
+---
+
+<BaseLayout
+  title="机场品牌与代理客户端横向对比分析"
+  description="通过结构化参数表对比同价位机场品牌与主流桌面代理客户端，理清规格差异、实测表现与真实适用人群。"
+  schemas={[collectionSchema]}
+>
+  <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8" data-pagefind-body>
+    <Breadcrumb items={[{ label: '横向对比' }]} />
+    <div class="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h1 class="text-3xl font-extrabold text-[var(--brand-navy)]">横向对比分析（{comparisons.length} 篇专题 + 交互式对比器）</h1>
+        <p class="mt-2 max-w-3xl text-base text-[var(--text-secondary)]">
+          拒绝“全部第一”的模糊榜单，将同价位机场品牌与同平台桌面客户端放在同一套指标下并排拆解，看清计费周期、专线架构、客户端自由度与实测短板。
+        </p>
+      </div>
+      <a
+        href="/compare/"
+        class="inline-flex shrink-0 items-center rounded-xl bg-[var(--brand-blue)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-blue-hover)]"
+      >
+        打开 31 家品牌交互对比器 →
+      </a>
+    </div>
+
+    <div class="mb-8">
+      <DisclosureBanner compact />
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {comparisons.map((entry) => (
+        <ComparisonCard entry={entry} />
+      ))}
+    </div>
+
+    <section class="mt-12 rounded-2xl border border-[var(--border-color)] bg-white p-6 sm:p-8">
+      <h2 class="text-2xl font-bold text-[var(--brand-navy)]">横向对比评估框架：看懂品牌差异的五个核心维度</h2>
+      <p class="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">
+        无论是挑选 20–30 元主力专线机场，还是在 5.6 元至 18 元平价档位之间做取舍，本站所有横向对比专题均围绕下表五个可量化维度展开：
+      </p>
+      <div class="mt-5 overflow-x-auto rounded-xl border border-[var(--border-color)]">
+        <table class="min-w-full divide-y divide-[var(--border-color)] text-left text-sm">
+          <thead class="bg-[var(--bg-secondary)] text-xs font-bold text-[var(--brand-navy)]">
+            <tr>
+              <th class="px-4 py-3">评估维度</th>
+              <th class="px-4 py-3">核对要点</th>
+              <th class="px-4 py-3">常见营销误区与避坑提醒</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[var(--border-color)] bg-white text-[var(--text-secondary)]">
+            <tr>
+              <td class="px-4 py-3 font-semibold text-[var(--text-primary)]">1. 计费口径与单 GB 成本</td>
+              <td class="px-4 py-3">拆解单月付门槛、年付折算均价与不限时流量包单价</td>
+              <td class="px-4 py-3">警惕把“年付折合 ¥8/月”写成普通月付价格，以及一次性流量包单 GB 成本高于高阶月付的倒挂现象。</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-semibold text-[var(--text-primary)]">2. 客户端生态与自由度</td>
+              <td class="px-4 py-3">区分「双支持」「仅第三方订阅」与「纯官方专属客户端」</td>
+              <td class="px-4 py-3">2026-10 后多家品牌转向纯专属客户端，若需配合 OpenWrt 软路由或自定义 Clash 分流规则，务必优先核对订阅开放状态。</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-semibold text-[var(--text-primary)]">3. 实测速度与异常节点率</td>
+              <td class="px-4 py-3">核查测试时间（是否晚高峰）、带宽基线及 0B/Timeout 节点数</td>
+              <td class="px-4 py-3">非晚高峰单节点峰值不能代表全线晚高峰体验；优质评测会诚实列出冷门地区（欧/泰/韩）或单节点失联记录。</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-semibold text-[var(--text-primary)]">4. AI 工具与流媒体解锁</td>
+              <td class="px-4 py-3">区分 ChatGPT Web vs App、Claude、Gemini、Netflix 与送中提示</td>
+              <td class="px-4 py-3">香港专线普遍存在 Gemini 受限与 OpenAI 网页风控，跨境 AI 用户应重点检查新加坡、日本及美国节点可用率。</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-semibold text-[var(--text-primary)]">5. 同质化与运营历史</td>
+              <td class="px-4 py-3">审计成立年份、促销码折扣边界、付款方式与跑路风险</td>
+              <td class="px-4 py-3">5.6 元极低价档多品牌高度同质化且缺少实测截图，不建议一次性购买多年或大额预付套餐。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-5 flex flex-wrap gap-4 text-sm font-semibold">
+        <a href="/compare/" class="text-[var(--brand-blue)] hover:underline">立即使用 31 家品牌并排对比器 →</a>
+        <a href="/brands/" class="text-[var(--brand-blue)] hover:underline">按专线/客户端/价格筛选全部品牌 →</a>
+        <a href="/reviews/" class="text-[var(--brand-blue)] hover:underline">查看 20 篇独立品牌深度评测 →</a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

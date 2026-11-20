@@ -1,0 +1,327 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumb from '@/components/common/Breadcrumb.astro';
+import BrandLogo from '@/components/common/BrandLogo.astro';
+import DisclosureBanner from '@/components/common/DisclosureBanner.astro';
+import FAQSection from '@/components/common/FAQSection.astro';
+import PricingTable from '@/components/review/PricingTable.astro';
+import AffiliateLink from '@/components/review/AffiliateLink.astro';
+import BrandInfrastructureSnapshot from '@/components/charts/BrandInfrastructureSnapshot.astro';
+import NetworkPerformanceReport from '@/components/charts/NetworkPerformanceReport.astro';
+import StreamingAvailabilityMatrix from '@/components/charts/StreamingAvailabilityMatrix.astro';
+import NetworkTopology from '@/components/charts/NetworkTopology.astro';
+import BrandCard from '@/components/cards/BrandCard.astro';
+import { DATA_STATUS_META, getBrandsBySlugs, type BrandProfile } from '@/data/brands';
+import { SITE } from '@/data/site';
+import { toSocialImagePath, toSocialImageUrl } from '@/utils/seo';
+
+export interface Props {
+  brand: BrandProfile;
+}
+
+const { brand } = Astro.props;
+const statusMeta = DATA_STATUS_META[brand.dataStatus];
+const similarBrands = getBrandsBySlugs(brand.similarBrands);
+
+const visibleTitle = `${brand.name}${brand.englishName && brand.englishName !== brand.name ? `（${brand.englishName}）` : ''} 品牌评测与套餐档案`;
+const fallbackCover = brand.cover ?? '/images/covers/editorial-network.png';
+const brandOgImagePath = brand.speedReport.screenshots?.[0]?.src ?? toSocialImagePath(fallbackCover);
+const brandSchemaImageUrl = toSocialImageUrl(brandOgImagePath, SITE.url);
+
+const extractedTestDate = brand.speedReport.testDate.match(/\d{4}-\d{2}-\d{2}/)?.[0];
+const schemaPublishedDate = extractedTestDate
+  ?? (brand.dataStatus === 'historical' ? '2026-08-09' : brand.verifiedDate);
+
+const speedHeadingText =
+  brand.dataStatus === 'verified'
+    ? `${brand.name} 实测测速截图与延迟记录`
+    : brand.dataStatus === 'historical'
+      ? `${brand.name} 历史测速存档与有效边界`
+      : `${brand.name} 官方测速基准与待核实项`;
+
+const pricingHeadingText =
+  brand.plans.length === 0
+    ? `${brand.name} 套餐公开状态与价格缺口说明`
+    : brand.unexpiringPlanAvailable
+      ? `${brand.name} 周期套餐与不限时流量包明细`
+      : `${brand.name} 月付及年付套餐明细`;
+
+const clientHeadingText =
+  brand.clientMode === 'proprietary_only'
+    ? `${brand.name} 专属客户端政策与架构解析`
+    : `${brand.name} 第三方订阅与全平台客户端兼容`;
+
+const reviewSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: visibleTitle,
+  description: brand.summary,
+  image: brandSchemaImageUrl,
+  datePublished: `${schemaPublishedDate}T08:00:00+08:00`,
+  dateModified: `${brand.updatedDate}T08:00:00+08:00`,
+  inLanguage: 'zh-CN',
+  author: {
+    '@type': 'Organization',
+    name: SITE.name,
+    url: new URL('/about/', SITE.url).toString(),
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: SITE.name,
+    url: SITE.url,
+    logo: {
+      '@type': 'ImageObject',
+      url: new URL('/logos/site-avatar.webp', SITE.url).toString(),
+    },
+  },
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': new URL(Astro.url.pathname, SITE.url).toString(),
+  },
+};
+---
+
+<BaseLayout
+  title={`${brand.name}评测、套餐价格与优缺点分析（2026）`}
+  description={`${brand.name}（${brand.foundedYear}）${brand.positioning}。查看完整套餐价格、协议支持、AI/流媒体解锁状态、注意事项与最新核实记录。`}
+  ogType="article"
+  ogImage={brandOgImagePath}
+  schemas={[reviewSchema]}
+>
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8" data-pagefind-body>
+    <Breadcrumb
+      items={[
+        { label: '机场推荐', href: '/airport/' },
+        { label: '品牌数据库', href: '/brands/' },
+        { label: brand.name },
+      ]}
+    />
+
+    <!-- 1. Brand Basic Profile Header -->
+    <section class="rounded-3xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-6 sm:p-8">
+      <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex items-start gap-4 sm:gap-5">
+          <BrandLogo name={brand.name} logo={brand.logo} accentColor={brand.accentColor} size="lg" />
+          <div class="space-y-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class:list={['rounded-full border px-3 py-0.5 text-xs font-semibold', statusMeta.badgeClass]}>
+                {statusMeta.label}
+              </span>
+              {brand.isPromotedPartner && (
+                <span class="rounded-full border border-amber-200 bg-amber-50 px-3 py-0.5 text-xs font-semibold text-amber-800">
+                  合作推广品牌（已披露）
+                </span>
+              )}
+              <span class="rounded-full bg-white border border-[var(--border-color)] px-3 py-0.5 text-xs text-[var(--text-secondary)]">
+                核实日期：{brand.verifiedDate}
+              </span>
+            </div>
+
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[var(--brand-navy)]">
+              {visibleTitle}
+            </h1>
+
+            <p class="text-sm sm:text-base font-medium text-[var(--brand-blue)]">
+              服务定位：{brand.positioning}
+            </p>
+            <p class="max-w-3xl text-sm sm:text-base leading-relaxed text-[var(--text-secondary)]">
+              {brand.summary}
+            </p>
+          </div>
+        </div>
+
+        <div class="shrink-0 rounded-2xl border border-[var(--border-color)] bg-white p-5 lg:w-80 space-y-3">
+          <div class="text-xs text-[var(--text-secondary)]">参考入门价位</div>
+          <div class="text-xl font-extrabold text-[var(--brand-navy)] font-mono-num">
+            {brand.startingPriceLabel}
+          </div>
+          <div class="text-xs text-[var(--text-secondary)]">
+            支付方式：{brand.paymentMethods.join(' / ')}
+          </div>
+          <AffiliateLink brandSlug={brand.slug} />
+        </div>
+      </div>
+
+      <p class="mt-5 border-t border-slate-200/80 pt-4 text-xs text-[var(--text-secondary)]">
+        <strong>独立评测声明：</strong>{brand.independentRankNote}
+      </p>
+      <div class="mt-3 rounded-xl border border-blue-100 bg-white/80 p-3.5 text-xs leading-relaxed text-[var(--text-secondary)]">
+        <strong class="text-[var(--brand-navy)]">编辑部核实结论：</strong>
+        {brand.name}当前归类为「{statusMeta.label}」（{brand.foundedYear}，{brand.lineType} · {brand.protocols.join('/')}），接入模式为{brand.clientModeLabel}，并发限制为「{brand.deviceLimit}」，参考起步口径为 {brand.startingPriceLabel}（{brand.startingPriceType}）。{brand.unlockSummaryNote}
+      </div>
+    </section>
+
+    <!-- 2. Infrastructure Snapshot -->
+    <BrandInfrastructureSnapshot brand={brand} />
+
+    <!-- 3. Pricing Table & Cycle Comparison -->
+    <section class="my-10" aria-labelledby="pricing-heading">
+      <div class="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 id="pricing-heading" class="text-2xl font-bold text-[var(--brand-navy)]">
+            {pricingHeadingText}
+          </h2>
+          <p class="text-sm text-[var(--text-secondary)]">
+            严格区分年付折算月均价、常规月付价格与一次性不限时流量包，拒绝模糊宣传。
+          </p>
+        </div>
+        <span class="text-xs text-[var(--text-muted)]">更新：{brand.updatedDate}</span>
+      </div>
+      <PricingTable
+        brandName={brand.name}
+        plans={brand.plans}
+        discrepancyNotes={brand.discrepancyNotes}
+      />
+    </section>
+
+    <!-- 4. Network Performance Report -->
+    <section class="my-10" aria-labelledby="speed-heading">
+      <h2 id="speed-heading" class="mb-2 text-2xl font-bold text-[var(--brand-navy)]">
+        {speedHeadingText}
+      </h2>
+      <NetworkPerformanceReport
+        brandName={brand.name}
+        accentColor={brand.accentColor}
+        report={brand.speedReport}
+      />
+    </section>
+
+    <!-- 5. Streaming & AI Availability Matrix -->
+    <section class="my-10" aria-labelledby="unlock-heading">
+      <h2 id="unlock-heading" class="mb-2 text-2xl font-bold text-[var(--brand-navy)]">
+        {brand.name} AI 服务与流媒体解锁核查
+      </h2>
+      <StreamingAvailabilityMatrix
+        brandName={brand.name}
+        matrix={brand.unlockMatrix}
+        summaryNote={brand.unlockSummaryNote}
+      />
+    </section>
+
+    <!-- 6. Client Support & Network Topology -->
+    <section class="my-10">
+      <h2 class="mb-4 text-2xl font-bold text-[var(--brand-navy)]">
+        {clientHeadingText}
+      </h2>
+      <div class="rounded-2xl border border-[var(--border-color)] bg-white p-6">
+        <div class="grid gap-6 md:grid-cols-2">
+          <div>
+            <h3 class="text-sm font-bold text-[var(--text-primary)]">接入方式与客户端兼容</h3>
+            <p class="mt-1.5 text-sm text-[var(--text-secondary)]">{brand.clientModeLabel}</p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              {brand.supportedClients.map((c) => (
+                <span class="rounded-lg bg-[var(--brand-blue-soft)] px-3 py-1 text-xs font-semibold text-[var(--brand-blue)]">
+                  {c}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-[var(--text-primary)]">教程与配置参考</h3>
+            <p class="mt-1.5 text-sm text-[var(--text-secondary)]">
+              {brand.clientMode === 'proprietary_only'
+                ? '该品牌目前仅限使用官方专属客户端，无需且不支持在 Clash Verge Rev / Shadowrocket 中导入订阅。'
+                : '支持在桌面端及移动端第三方客户端导入订阅或使用官方客户端，配置前请先核对协议兼容性。'}
+            </p>
+            <div class="mt-3 flex flex-wrap gap-3 text-xs font-semibold">
+              <a href="/guides/clash-verge-rev-beginner-guide/" class="text-[var(--brand-blue)] hover:underline">
+                Clash Verge Rev 教程 →
+              </a>
+              <a href="/guides/shadowrocket-ios-setup/" class="text-[var(--brand-blue)] hover:underline">
+                Shadowrocket 小火箭教程 →
+              </a>
+              <a href="/clients/" class="text-[var(--brand-blue)] hover:underline">
+                查看全平台客户端大全 →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <NetworkTopology
+        brandName={brand.name}
+        lineType={brand.lineType}
+        protocols={brand.protocols}
+        accentColor={brand.accentColor}
+        isSchematic={true}
+      />
+    </section>
+
+    <!-- 7. Pros, Limitations, Audience & Risk Notes -->
+    <section class="my-10 grid gap-6 md:grid-cols-2">
+      <div class="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-6">
+        <h2 class="text-lg font-bold text-emerald-950">核心优势与突出特征</h2>
+        <ul class="mt-3 list-disc pl-5 space-y-2 text-sm text-emerald-950/90">
+          {brand.highlights.map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="rounded-2xl border border-rose-200 bg-rose-50/40 p-6">
+        <h2 class="text-lg font-bold text-rose-950">主要限制与不足</h2>
+        <ul class="mt-3 list-disc pl-5 space-y-2 text-sm text-rose-950/90">
+          {brand.limitations.map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="rounded-2xl border border-[var(--border-color)] bg-white p-6">
+        <h2 class="text-lg font-bold text-[var(--text-primary)]">适合人群与不适合人群</h2>
+        <div class="mt-3 space-y-3 text-sm">
+          <div>
+            <div class="font-semibold text-emerald-700">适合：</div>
+            <ul class="mt-1 list-disc pl-5 text-[var(--text-secondary)] space-y-1">
+              {brand.suitableFor.map((s) => <li>{s}</li>)}
+            </ul>
+          </div>
+          <div>
+            <div class="font-semibold text-amber-700">不建议：</div>
+            <ul class="mt-1 list-disc pl-5 text-[var(--text-secondary)] space-y-1">
+              {brand.notSuitableFor.map((s) => <li>{s}</li>)}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-amber-200 bg-amber-50/50 p-6">
+        <h2 class="text-lg font-bold text-amber-950">购买前注意事项与风险提示</h2>
+        <ul class="mt-3 list-disc pl-5 space-y-2 text-sm text-amber-950/90">
+          {brand.riskNotes.map((r) => (
+            <li>{r}</li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- 8. FAQ & Sources -->
+    <FAQSection items={brand.faq} title={`${brand.name} 常见问题解答`} />
+
+    <section class="mt-8 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-5 text-xs text-[var(--text-secondary)]">
+      <div class="font-bold text-sm text-[var(--text-primary)] mb-2">资料来源与信息核实记录</div>
+      <p>来源档案：{brand.sources.join(' · ')} ｜ 数据状态：{statusMeta.label} ｜ 核实日期：{brand.verifiedDate} ｜ 最近更新：{brand.updatedDate}</p>
+    </section>
+
+    <!-- 9. Similar Brands -->
+    {similarBrands.length > 0 && (
+      <section class="mt-12">
+        <div class="mb-5 flex items-center justify-between">
+          <h2 class="text-2xl font-bold text-[var(--brand-navy)]">与 {brand.name} 同类型或相近价位品牌对比</h2>
+          <a href="/brands/" class="text-sm font-semibold text-[var(--brand-blue)] hover:underline">
+            浏览全部 31 家品牌 →
+          </a>
+        </div>
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {similarBrands.map((sb) => (
+            <BrandCard brand={sb} compact />
+          ))}
+        </div>
+      </section>
+    )}
+
+    <div class="mt-10">
+      <DisclosureBanner />
+    </div>
+  </div>
+</BaseLayout>

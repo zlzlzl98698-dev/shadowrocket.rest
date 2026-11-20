@@ -1,0 +1,110 @@
+---
+import { SITE } from '@/data/site';
+import { toSocialImageUrl } from '@/utils/seo';
+
+export interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  omitCanonical?: boolean;
+  ogType?: 'website' | 'article';
+  ogImage?: string;
+  pubDate?: Date;
+  updatedDate?: Date;
+  author?: string;
+  noindex?: boolean;
+  noindexFollow?: boolean;
+  schemas?: Record<string, unknown>[];
+}
+
+const {
+  title,
+  description,
+  canonical,
+  omitCanonical = false,
+  ogType = 'website',
+  ogImage = '/images/covers/editorial-network.png',
+  pubDate,
+  updatedDate,
+  author = SITE.authorDefault.name,
+  noindex = false,
+  noindexFollow = false,
+  schemas = [],
+} = Astro.props;
+
+const fullTitle = title.includes(SITE.name) ? title : `${title} | ${SITE.name}`;
+const canonicalUrl = canonical
+  ? new URL(canonical, SITE.url).toString()
+  : new URL(Astro.url.pathname, SITE.url).toString();
+const ogImageUrl = toSocialImageUrl(ogImage, SITE.url);
+
+const baseSchemas: Record<string, unknown>[] = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: SITE.name,
+    url: SITE.url,
+    logo: new URL('/logos/site-avatar.webp', SITE.url).toString(),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE.fullName,
+    url: SITE.url,
+    inLanguage: 'zh-CN',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${SITE.url}/search/?q={search_term_string}`,
+      'query-input': 'required name=search_term_string',
+    },
+  },
+];
+
+const allSchemas = [...baseSchemas, ...schemas];
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+{SITE.siteVerification.google && <meta name="google-site-verification" content={SITE.siteVerification.google} />}
+{SITE.siteVerification.bing && <meta name="msvalidate.01" content={SITE.siteVerification.bing} />}
+{SITE.siteVerification.shenma && <meta name="shenma-site-verification" content={SITE.siteVerification.shenma} />}
+{SITE.siteVerification.baidu && <meta name="baidu-site-verification" content={SITE.siteVerification.baidu} />}
+{!omitCanonical && <link rel="canonical" href={canonicalUrl} />}
+<link rel="icon" type="image/webp" href="/logos/site-avatar.webp?v=20261120" />
+<link rel="shortcut icon" type="image/webp" href="/logos/site-avatar.webp?v=20261120" />
+<link rel="apple-touch-icon" href="/logos/site-avatar.webp?v=20261120" />
+<link rel="sitemap" href="/sitemap-index.xml" />
+<link rel="alternate" type="application/rss+xml" title={`${SITE.name} RSS 订阅`} href="/rss.xml" />
+
+{noindex ? (
+  <meta name="robots" content="noindex, nofollow" />
+) : noindexFollow ? (
+  <meta name="robots" content="noindex, follow" />
+) : (
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+)}
+
+<!-- Open Graph -->
+<meta property="og:locale" content="zh_CN" />
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:type" content={ogType} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:image" content={ogImageUrl} />
+
+{pubDate && <meta property="article:published_time" content={pubDate.toISOString()} />}
+{updatedDate && <meta property="article:modified_time" content={updatedDate.toISOString()} />}
+{ogType === 'article' && <meta property="article:author" content={author} />}
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImageUrl} />
+
+{allSchemas.map((schema) => (
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+))}

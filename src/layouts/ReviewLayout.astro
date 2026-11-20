@@ -1,0 +1,21 @@
+---
+import ArticleLayout from './ArticleLayout.astro';
+import { getBrandBySlug } from '@/data/brands';
+import BrandInfrastructureSnapshot from '@/components/charts/BrandInfrastructureSnapshot.astro';
+import type { AnyEntry } from '@/utils/content';
+
+export interface Props {
+  entry: AnyEntry;
+  headings: { depth: number; slug: string; text: string }[];
+  relatedEntries: AnyEntry[];
+}
+
+const { entry, headings, relatedEntries } = Astro.props;
+const primarySlug = 'primaryBrandSlug' in entry.data ? entry.data.primaryBrandSlug : entry.data.brandSlugs[0];
+const brand = primarySlug ? getBrandBySlug(primarySlug) : undefined;
+---
+
+<ArticleLayout entry={entry} headings={headings} relatedEntries={relatedEntries}>
+  {brand && <BrandInfrastructureSnapshot brand={brand} />}
+  <slot />
+</ArticleLayout>

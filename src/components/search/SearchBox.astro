@@ -1,0 +1,50 @@
+---
+export interface Props {
+  placeholder?: string;
+  size?: 'md' | 'lg';
+  defaultValue?: string;
+}
+
+const {
+  placeholder = '输入关键词搜索：如 光速云、Clash Verge、订阅失败、IEPL...',
+  size = 'lg',
+  defaultValue = '',
+} = Astro.props;
+---
+
+<form action="/search/" method="get" class="relative w-full">
+  <label for="hero-search-input" class="sr-only">站内搜索</label>
+  <input
+    id="hero-search-input"
+    type="search"
+    name="q"
+    value={defaultValue}
+    placeholder={placeholder}
+    class:list={[
+      'w-full rounded-2xl border border-[var(--border-strong)] bg-white text-[var(--text-primary)] shadow-xs placeholder:text-[var(--text-muted)] focus:border-[var(--brand-blue)] focus:outline-none',
+      size === 'lg' ? 'py-3.5 pl-12 pr-24 text-base' : 'py-2.5 pl-10 pr-20 text-sm',
+    ]}
+  />
+  <svg
+    class:list={[
+      'pointer-events-none absolute top-1/2 -translate-y-1/2 text-[var(--text-muted)]',
+      size === 'lg' ? 'left-4 h-5 w-5' : 'left-3.5 h-4 w-4',
+    ]}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    aria-hidden="true"
+  >
+    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18a7.5 7.5 0 006.15-3.35z" />
+  </svg>
+  <button
+    type="submit"
+    class:list={[
+      'absolute right-2 top-1/2 -translate-y-1/2 rounded-xl bg-[var(--brand-blue)] font-semibold text-white hover:bg-[var(--brand-blue-hover)] transition-colors cursor-pointer',
+      size === 'lg' ? 'px-4 py-2 text-sm' : 'px-3 py-1.5 text-xs',
+    ]}
+  >
+    搜索
+  </button>
+</form>

@@ -1,0 +1,26 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/common/Breadcrumb.astro';
+import { SITE } from '@/data/site';
+---
+
+<BaseLayout
+  title="隐私政策"
+  description="shadowrocket.rest 静态博客网站的访问日志、站内本地搜索与第三方外链隐私说明。"
+>
+  <div class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+    <Breadcrumb items={[{ label: '隐私政策' }]} />
+    <h1 class="text-3xl font-extrabold text-[var(--brand-navy)]">隐私政策</h1>
+    <div class="prose-editorial mt-6">
+      <p>
+        <strong>{SITE.name}（{SITE.domain}）</strong> 为纯静态 HTML 内容网站，不提供用户注册、登录系统，亦不直接向访客售卖任何网络代理服务或收集用户账号密码。
+      </p>
+      <h2>信息收集与本地搜索</h2>
+      <ul>
+        <li>站内全文搜索依托 Pagefind 静态索引在您的浏览器本地运行，搜索关键词不会上传至本站自有数据库。</li>
+        <li>浏览器筛选（如品牌数据库筛选条件）均在本地客户端执行。</li>
+        <li>当您点击外链跳转至第三方服务商官网或开源项目仓库（如 GitHub / App Store）时，后续行为受对应目标网站自身的隐私条款约束。</li>
+      </ul>
+    </div>
+  </div>
+</BaseLayout>

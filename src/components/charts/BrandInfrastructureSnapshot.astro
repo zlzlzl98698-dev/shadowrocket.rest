@@ -1,0 +1,60 @@
+---
+import type { BrandProfile } from '@/data/brands';
+import { DATA_STATUS_META } from '@/data/brands';
+
+export interface Props {
+  brand: BrandProfile;
+}
+
+const { brand } = Astro.props;
+const statusMeta = DATA_STATUS_META[brand.dataStatus];
+---
+
+<section class="observatory-panel p-5 sm:p-7 my-6" aria-label={`${brand.name} 基础设施概览面板`}>
+  <div class="flex flex-col gap-2 border-b border-[var(--obs-border)] pb-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <div class="text-xs font-mono-num uppercase tracking-wider text-slate-400">
+        INFRASTRUCTURE SERVICE SNAPSHOT
+      </div>
+      <h2 class="mt-1 text-lg sm:text-xl font-bold text-white">
+        {brand.name} · 核心技术参数与运营档案
+      </h2>
+    </div>
+    <span class="rounded-full border border-[var(--obs-border)] bg-[var(--obs-surface)] px-3 py-1 text-xs font-medium text-slate-200">
+      {statusMeta.label} · 核实 {brand.verifiedDate}
+    </span>
+  </div>
+
+  <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+    <div class="rounded-xl border border-[var(--obs-border)] bg-[var(--obs-surface)] p-4">
+      <div class="text-xs text-slate-400">线路架构</div>
+      <div class="mt-1 font-bold text-white">{brand.lineType}</div>
+      <div class="mt-1 text-xs text-slate-300 line-clamp-2">{brand.lineDescription}</div>
+    </div>
+
+    <div class="rounded-xl border border-[var(--obs-border)] bg-[var(--obs-surface)] p-4">
+      <div class="text-xs text-slate-400">传输协议</div>
+      <div class="mt-1 font-bold text-white font-mono-num">{brand.protocols.join(' · ')}</div>
+      <div class="mt-1 text-xs text-slate-300">客户端模式：{brand.clientMode === 'proprietary_only' ? '专属客户端' : brand.clientMode === 'proprietary_and_third_party' ? '自研 + 第三方' : brand.clientMode === 'third_party' ? '第三方订阅' : '待核实'}</div>
+    </div>
+
+    <div class="rounded-xl border border-[var(--obs-border)] bg-[var(--obs-surface)] p-4">
+      <div class="text-xs text-slate-400">起步参考价</div>
+      <div class="mt-1 font-bold text-white font-mono-num">
+        {brand.startingMonthlyPriceCny !== null ? `¥${brand.startingMonthlyPriceCny}/月起` : '待核实'}
+      </div>
+      <div class="mt-1 text-xs text-slate-300">{brand.startingPriceType}</div>
+    </div>
+
+    <div class="rounded-xl border border-[var(--obs-border)] bg-[var(--obs-surface)] p-4">
+      <div class="text-xs text-slate-400">设备限制与运营年份</div>
+      <div class="mt-1 font-bold text-white">{brand.foundedYear === '待核实' ? '年份待核实' : `${brand.foundedYear} 年起`}</div>
+      <div class="mt-1 text-xs text-slate-300 line-clamp-2">{brand.deviceLimit}</div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl border border-[var(--obs-border)] bg-[var(--obs-surface)] p-4 text-xs text-slate-300">
+    <span class="font-semibold text-white">记录节点地区：</span>
+    <span>{brand.nodeCoverage.join(' · ')}</span>
+  </div>
+</section>

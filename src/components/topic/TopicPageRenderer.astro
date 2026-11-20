@@ -1,0 +1,237 @@
+---
+import TopicLayout from '@/layouts/TopicLayout.astro';
+import ArticleCard from '@/components/cards/ArticleCard.astro';
+import FeaturedArticleCard from '@/components/cards/FeaturedArticleCard.astro';
+import CompactArticleCard from '@/components/cards/CompactArticleCard.astro';
+import BrandCard from '@/components/cards/BrandCard.astro';
+import GuideCard from '@/components/cards/GuideCard.astro';
+import PricingCard from '@/components/cards/PricingCard.astro';
+import DisclosureBanner from '@/components/common/DisclosureBanner.astro';
+import type { PillarNav, SubTopic } from '@/data/navigation';
+import { getClustersByTopic } from '@/data/clusters';
+import { getBrandsBySlugs } from '@/data/brands';
+import { getAllPublishedEntries, getEntrySlug } from '@/utils/content';
+
+export interface Props {
+  pillar: PillarNav;
+  topic: SubTopic;
+}
+
+const { pillar, topic } = Astro.props;
+const clusters = getClustersByTopic(pillar.key, topic.slug);
+const relatedBrands = getBrandsBySlugs(topic.featuredBrandSlugs);
+const allEntries = await getAllPublishedEntries();
+
+const directTopicEntries = allEntries.filter(
+  (e) => e.data.pillar === pillar.key && e.data.topicSlug === topic.slug
+);
+const pillarEntries = allEntries.filter(
+  (e) => e.data.pillar === pillar.key && !directTopicEntries.some((d) => d.id === e.id)
+);
+const guideMatches = allEntries.filter((e) =>
+  topic.relatedGuideSlugs.includes(getEntrySlug(e))
+);
+
+// Combine without duplicates while prioritizing exact topic & guide matches
+const mergedMap = new Map<string, (typeof allEntries)[number]>();
+for (const e of [...directTopicEntries, ...guideMatches, ...pillarEntries]) {
+  mergedMap.set(e.id, e);
+}
+const topicEntries = Array.from(mergedMap.values()).slice(0, 6);
+const leadEntry = topicEntries[0];
+const restEntries = topicEntries.slice(1);
+const tableBrands = relatedBrands.length > 0 ? relatedBrands : getBrandsBySlugs(['guangsuyun', 'muguang', 'feimao', 'wuyou']);
+---
+
+<TopicLayout pillar={pillar} topic={topic} clusters={clusters}>
+  <!-- Distinct layout per Pillar so topic pages never look identical -->
+  {pillar.key === 'airport' && (
+    <>
+      {leadEntry && (
+        <section>
+          <h2 class="mb-4 text-2xl font-bold text-[var(--brand-navy)]">{topic.name} · 核心专题指南</h2>
+          <div class="grid gap-6 lg:grid-cols-12 items-stretch">
+            <div class="lg:col-span-7">
+              <FeaturedArticleCard entry={leadEntry} />
+            </div>
+            <div class="lg:col-span-5 flex flex-col gap-4">
+              {restEntries.slice(0, 3).map((e) => (
+                <CompactArticleCard entry={e} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {relatedBrands.length > 0 && (
+        <section>
+          <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 class="text-2xl font-bold text-[var(--brand-navy)]">关联品牌方案（来自 31 家品牌库）</h2>
+              <p class="text-sm text-[var(--text-secondary)]">按本专题需求筛选的关联品牌档案，均可进入详情核实套餐与测速。</p>
+            </div>
+            <a href="/brands/" class="text-sm font-semibold text-[var(--brand-blue)] hover:underline">
+              打开完整品牌筛选库 →
+            </a>
+          </div>
+          <div class="mb-5">
+            <DisclosureBanner compact />
+          </div>
+          <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {relatedBrands.map((b) => (
+              <BrandCard brand={b} />
+            ))}
+          </div>
+        </section>
+      )}
+    </>
+  )}
+
+  {pillar.key === 'vpn' && (
+    <>
+      <section>
+        <h2 class="mb-4 text-2xl font-bold text-[var(--brand-navy)]">{topic.name} · 评测与对比文章</h2>
+        <div class="space-y-5">
+          {topicEntries.slice(0, 3).map((e) => (
+            <ArticleCard entry={e} horizontal />
+          ))}
+        </div>
+      </section>
+
+      {relatedBrands.length > 0 && (
+        <section>
+          <h2 class="mb-4 text-2xl font-bold text-[var(--brand-navy)]">代表性套餐门槛参考</h2>
+          <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {relatedBrands
+              .filter((b) => b.plans.length > 0)
+              .slice(0, 4)
+              .map((b) => (
+                <PricingCard brandName={b.name} brandSlug={b.slug} plan={b.plans[0]} />
+              ))}
+          </div>
+        </section>
+      )}
+    </>
+  )}
+
+  {pillar.key === 'clash' && (
+    <>
+      <section>
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="text-2xl font-bold text-[var(--brand-navy)]">{topic.name} · 客户端实操与排错手册</h2>
+          <a href="/clients/" class="text-sm font-semibold text-[var(--brand-blue)] hover:underline">
+            6 大平台客户端清单 →
+          </a>
+        </div>
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {topicEntries.map((e) => (
+            <GuideCard entry={e} />
+          ))}
+        </div>
+      </section>
+
+      {relatedBrands.length > 0 && (
+        <section>
+          <h2 class="mb-4 text-2xl font-bold text-[var(--brand-navy)]">本专题关联服务商兼容性参考</h2>
+          <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {relatedBrands.slice(0, 3).map((b) => (
+              <BrandCard brand={b} compact />
+            ))}
+          </div>
+        </section>
+      )}
+    </>
+  )}
+
+  {pillar.key === 'resources' && (
+    <>
+      <section>
+        <h2 class="mb-4 text-2xl font-bold text-[var(--brand-navy)]">{topic.name} · 情报、检测与避坑手册</h2>
+        <div class="grid gap-6 sm:grid-cols-2">
+          {topicEntries.slice(0, 4).map((e) => (
+            <ArticleCard entry={e} />
+          ))}
+        </div>
+      </section>
+
+      {relatedBrands.length > 0 && (
+        <section>
+          <h2 class="mb-4 text-2xl font-bold text-[var(--brand-navy)]">相关审计与核查品牌档案</h2>
+          <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {relatedBrands.map((b) => (
+              <BrandCard brand={b} compact />
+            ))}
+          </div>
+        </section>
+      )}
+    </>
+  )}
+
+  <!-- Shared Structured Parameter Table & Selection Checklist for GEO/AEO Depth -->
+  <section class="rounded-2xl border border-[var(--border-color)] bg-white p-6 sm:p-8 space-y-6">
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h2 class="text-2xl font-bold text-[var(--brand-navy)]">{topic.name} · 关联品牌参数速查与选型清单</h2>
+        <p class="mt-1 text-sm text-[var(--text-secondary)]">
+          围绕「{topic.primaryKeyword}」（覆盖 {topic.secondaryKeywords.join('、')}）整理的关联品牌实时档案摘要，所有数据均保留核实状态标识。
+        </p>
+      </div>
+      <a href="/compare/" class="shrink-0 text-sm font-semibold text-[var(--brand-blue)] hover:underline">
+        前往交互对比器并排核对 →
+      </a>
+    </div>
+
+    <div class="overflow-x-auto rounded-xl border border-[var(--border-color)]">
+      <table class="min-w-full divide-y divide-[var(--border-color)] text-left text-xs sm:text-sm">
+        <thead class="bg-[var(--bg-secondary)] font-bold text-[var(--brand-navy)]">
+          <tr>
+            <th class="px-4 py-3">品牌名称</th>
+            <th class="px-4 py-3">资料核实级别</th>
+            <th class="px-4 py-3">线路架构</th>
+            <th class="px-4 py-3">客户端兼容</th>
+            <th class="px-4 py-3">参考起步口径</th>
+            <th class="px-4 py-3">不限时包</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[var(--border-color)] bg-white text-[var(--text-secondary)]">
+          {tableBrands.map((b) => (
+            <tr>
+              <td class="px-4 py-3 font-semibold text-[var(--text-primary)]">
+                <a href={`/brands/${b.slug}/`} class="text-[var(--brand-blue)] hover:underline">{b.name}</a>
+              </td>
+              <td class="px-4 py-3">{b.dataStatus === 'verified' ? '含实测截图核实' : b.dataStatus === 'historical' ? '历史存档记录' : '品牌资料整理'}</td>
+              <td class="px-4 py-3">{b.lineType}</td>
+              <td class="px-4 py-3">{b.clientModeLabel}</td>
+              <td class="px-4 py-3 font-mono-num">{b.startingPriceLabel}（{b.startingPriceType}）</td>
+              <td class="px-4 py-3">{b.unexpiringPlanAvailable ? '支持' : '未见/无'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4">
+        <h3 class="text-sm font-bold text-[var(--brand-navy)]">下单与配置前必查四项</h3>
+        <ul class="mt-2 list-disc space-y-1.5 pl-5 text-xs sm:text-sm text-[var(--text-secondary)]">
+          <li><strong>区分月付门槛与年付折算</strong>：优先从首月低成本月付切入实测晚高峰速度，不盲目锁定大额多年套餐。</li>
+          <li><strong>核对客户端限制</strong>：若需在 Clash Verge Rev、Shadowrocket 或 OpenWrt 软路由导入订阅，先确认服务商当前未转为仅限专属客户端。</li>
+          <li><strong>匹配地区解锁场景</strong>：使用 ChatGPT / Claude / Gemini 请关注新加坡、日本与美国节点比例，避开香港节点风控局限。</li>
+          <li><strong>主备分流组合</strong>：主力月付搭配 100 元级不限时流量包（如 100GB–247GB）可在极端维护期保持不断网。</li>
+        </ul>
+      </div>
+      <div class="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4">
+        <h3 class="text-sm font-bold text-[var(--brand-navy)]">本专题关键词与实操延伸入口</h3>
+        <p class="mt-2 text-xs sm:text-sm leading-relaxed text-[var(--text-secondary)]">
+          适用对象：{topic.targetAudience}。若在导入订阅、开启 TUN 模式或排查节点超时过程中遇到异常，可结合以下站内工具页完成自检：
+        </p>
+        <div class="mt-3 flex flex-wrap gap-2.5 text-xs font-semibold">
+          <a href="/guides/subscription-failed-troubleshooting/" class="rounded-lg bg-white px-3 py-1.5 border border-[var(--border-color)] text-[var(--brand-blue)] hover:border-[var(--brand-blue)]">订阅导入失败排查</a>
+          <a href="/guides/node-timeout-dns-fix/" class="rounded-lg bg-white px-3 py-1.5 border border-[var(--border-color)] text-[var(--brand-blue)] hover:border-[var(--brand-blue)]">节点 Timeout 修复</a>
+          <a href="/articles/ai-and-streaming-unlock-guide/" class="rounded-lg bg-white px-3 py-1.5 border border-[var(--border-color)] text-[var(--brand-blue)] hover:border-[var(--brand-blue)]">AI 与流媒体解锁指南</a>
+          <a href="/about/" class="rounded-lg bg-white px-3 py-1.5 border border-[var(--border-color)] text-[var(--brand-blue)] hover:border-[var(--brand-blue)]">数据分级核实标准</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</TopicLayout>

@@ -1,0 +1,78 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumb from '@/components/common/Breadcrumb.astro';
+import { SITE } from '@/data/site';
+---
+
+<BaseLayout
+  title="关于我们 — 小火箭编辑部、测试环境与数据核实方法论"
+  description="了解 shadowrocket.rest（小火箭）的内容定位、数据分级核实标准、MiaoKo 多运营商实测方法论、编辑部分工与勘误联系机制。"
+>
+  <div class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8" data-pagefind-body>
+    <Breadcrumb items={[{ label: '关于我们' }]} />
+    <h1 class="text-3xl font-extrabold text-[var(--brand-navy)]">关于小火箭（{SITE.domain}）与评测方法论</h1>
+    <div class="prose-editorial mt-6">
+      <p>
+        <strong>小火箭（shadowrocket.rest）</strong> 是一个专注中文跨境网络工具知识、机场品牌客观评测、套餐核实数据库与第三方代理客户端实操教程的专业博客媒体。我们服务于首次配置 Shadowrocket / Clash Verge Rev 的入门用户，以及需要核查 IEPL/IPLC 专线品质、AI 工具（ChatGPT、Claude、Gemini）和流媒体解锁边界的进阶用户。
+      </p>
+
+      <h2>一、四级数据核实准则（拒绝伪造实测）</h2>
+      <p>{SITE.editorialPolicy.testMethodology}</p>
+      <table>
+        <thead>
+          <tr>
+            <th>数据等级</th>
+            <th>准入要求与页面标识</th>
+            <th>公开披露范围</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Measured Data（实测记录）</strong></td>
+            <td>必须具备原始测速截图或脚本导出，标注测试时间、ISP 线路、线程数与全节点清单</td>
+            <td>保留 0B 失联、超时、送中与异常慢节点，不人为剔除坏样本</td>
+          </tr>
+          <tr>
+            <td><strong>Vendor Data（厂商资料）</strong></td>
+            <td>源自服务商公开说明或非晚高峰基准测速，页面明确提示非全时段保证</td>
+            <td>核对优惠码条件、客户端策略变更（如 2026-10 专属客户端转向）</td>
+          </tr>
+          <tr>
+            <td><strong>Historical（历史记录）</strong></td>
+            <td>来自 2026-08-09 等早期归档数据，页面醒目标记历史档案状态</td>
+            <td>提醒用户核对现价与存续状态，不误导当作当前活跃推荐</td>
+          </tr>
+          <tr>
+            <td><strong>Unverified（待核实）</strong></td>
+            <td>原清单价格缺失、无有效截图或截图日期被遮挡时，一律诚实标注待核实</td>
+            <td>严禁使用示例数值或年付折算均价冒充单月付起步门槛</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>二、测试环境与实测工具链说明</h2>
+      <ul>
+        <li><strong>网络测试基准</strong>：核心已核实品牌接入了 <code>2026-07-18/19</code>、<code>2026-08-11</code> 及 <code>2026-08-19</code> 批次真实 MiaoKo / Speedtest 测试截图，覆盖珠海联通（5Gbps / 9Gbps）、长沙电信（2Gbps）、广西移动（2Gbps）与河北联通（2Gbps）等多运营商入口样本。</li>
+        <li><strong>关键指标口径</strong>：同时记录节点平均速度（MB/s）、峰值速率、TLS RTT / HTTPS 握手延迟、NAT 类型（如 FullCone）、IPRisk 风险分数及送中状态，避免仅凭单线程测速峰值下结论。</li>
+        <li><strong>解锁探测边界</strong>：区分「Web 网页端与 App 端解锁」（例如部分香港节点仅支持 ChatGPT App 或受限于 Gemini），不把单一地区或单一时间点的解锁状态包装为永久承诺。</li>
+      </ul>
+
+      <h2>三、编辑部分工与独立商业披露</h2>
+      <p>本站内容由 5 个专业方向小组协作维护与交叉审计，所有推广入口均遵循透明披露原则：</p>
+      <ul>
+        <li><strong>小火箭评测组</strong>：负责品牌数据库维护、MiaoKo 测速图核查与单 GB 套餐成本精算（覆盖 31 家品牌与 20 篇 MDX 深度评测）。</li>
+        <li><strong>小火箭客户端技术组</strong>：负责 Windows / macOS / Linux / iOS / Android / OpenWrt 开源客户端（Mihomo / Clash Verge Rev / Shadowrocket / FlClash / v2rayN）实操与故障排查文档维护。</li>
+        <li><strong>小火箭安全与情报组</strong>：跟踪免费节点劫持风险、高危年付跑路预警、专属客户端政策变化与钓鱼链接排查。</li>
+        <li><strong>小火箭数据审计组 & 编辑部</strong>：负责品牌去重（如 Firefly 双条目合并）、价格口径冲突记录（如 59GB vs 69GB 审计）与全站信息准确性复核。</li>
+      </ul>
+      <p>
+        关于商业合作与推广返佣政策，请查阅 <a href="/disclosure/">商业推广与联盟链接披露</a>；法律与合规边界请参阅 <a href="/disclaimer/">免责声明</a> 与 <a href="/privacy/">隐私政策</a>；也可直接进入 <a href="/brands/">31 家品牌数据库</a> 或 <a href="/compare/">在线参数对比器</a> 自行核对各品牌原始档案。
+      </p>
+
+      <h2>四、编辑部与勘误联系</h2>
+      <p>
+        如发现任何品牌套餐价格变动、优惠码失效、客户端项目维护状态变化或实测报告勘误，欢迎附带证据截图或官方公告链接来信至：<a href={`mailto:${SITE.contact.email}`}>{SITE.contact.email}</a>，我们通常会在核实后更新对应档案页面的核实日期与修订说明。
+      </p>
+    </div>
+  </div>
+</BaseLayout>

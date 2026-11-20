@@ -1,0 +1,40 @@
+---
+import CategoryLayout from '@/layouts/CategoryLayout.astro';
+import GuideCard from '@/components/cards/GuideCard.astro';
+import { getPillarByKey } from '@/data/navigation';
+import { CLIENT_PLATFORMS } from '@/data/clients';
+import { getAllPublishedEntries } from '@/utils/content';
+
+const pillar = getPillarByKey('clash');
+const allEntries = await getAllPublishedEntries();
+const clashGuides = allEntries.filter((e) => e.data.pillar === 'clash' || e.kind === 'guides');
+---
+
+<CategoryLayout pillar={pillar}>
+  <section>
+    <div class="mb-5 flex items-end justify-between">
+      <h2 class="text-2xl font-bold text-[var(--brand-navy)]">Clash 与全平台代理客户端教程</h2>
+      <a href="/clients/" class="text-sm font-semibold text-[var(--brand-blue)] hover:underline">
+        查看 20+ 客户端兼容表 →
+      </a>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {clashGuides.map((entry) => (
+        <GuideCard entry={entry} />
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <h2 class="mb-5 text-2xl font-bold text-[var(--brand-navy)]">按操作系统快速选软件</h2>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {CLIENT_PLATFORMS.map((group) => (
+        <a href={`/clients/#${group.id}`} class="editorial-card p-5">
+          <div class="text-xs font-semibold text-[var(--brand-blue)]">{group.shortName}</div>
+          <h3 class="mt-1 text-base font-bold text-[var(--text-primary)]">{group.platform}</h3>
+          <p class="mt-1.5 text-xs text-[var(--text-secondary)]">{group.summary}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+</CategoryLayout>

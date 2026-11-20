@@ -1,0 +1,29 @@
+---
+import ArticleLayout from './ArticleLayout.astro';
+import BrandCard from '@/components/cards/BrandCard.astro';
+import { getBrandsBySlugs } from '@/data/brands';
+import type { AnyEntry } from '@/utils/content';
+
+export interface Props {
+  entry: AnyEntry;
+  headings: { depth: number; slug: string; text: string }[];
+  relatedEntries: AnyEntry[];
+}
+
+const { entry, headings, relatedEntries } = Astro.props;
+const brands = getBrandsBySlugs(entry.data.brandSlugs ?? []);
+---
+
+<ArticleLayout entry={entry} headings={headings} relatedEntries={relatedEntries}>
+  <slot />
+  {brands.length > 0 && (
+    <section class="mt-8 border-t border-[var(--border-color)] pt-6">
+      <h2 class="mb-4 text-xl font-bold text-[var(--brand-navy)]">本文涉及品牌详细档案入口</h2>
+      <div class="grid gap-4 sm:grid-cols-2">
+        {brands.map((b) => (
+          <BrandCard brand={b} compact />
+        ))}
+      </div>
+    </section>
+  )}
+</ArticleLayout>
